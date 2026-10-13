@@ -58,53 +58,53 @@
 
 <div class="rb">
   <header id="header">
-    <h1 class="rb-title" id="title">Marathon PB board 2026</h1>
+    <h1 class="rb-title" id="title">Ατομικά ρεκόρ μαραθωνίου 2026</h1>
     <p class="rb-take dash-skeleton" id="takeaway"></p>
   </header>
 
   <div class="rb-controls" id="controls">
-    <div class="rb-seg" role="group" aria-label="Who to show">
-      <button type="button" data-g="all">Everyone</button>
-      <button type="button" data-g="Men">Men</button>
-      <button type="button" data-g="Women">Women</button>
+    <div class="rb-seg" role="group" aria-label="Ποιοι εμφανίζονται">
+      <button type="button" data-g="all">Όλοι</button>
+      <button type="button" data-g="Men">Άνδρες</button>
+      <button type="button" data-g="Women">Γυναίκες</button>
     </div>
-    <label class="rb-toggle"><input type="checkbox" id="rb-adj"> Count the Authentic as a flat marathon (5:30 faster)</label>
+    <label class="rb-toggle"><input type="checkbox" id="rb-adj"> Ο Αυθεντικός να μετράει ως επίπεδος μαραθώνιος (5:30 ταχύτερα)</label>
   </div>
 
   <section class="rb-kpis" id="kpis">
-    <div class="rb-kpi"><div class="rb-kpi-label">Runners on the list</div>
+    <div class="rb-kpi"><div class="rb-kpi-label">Δρομείς στη λίστα</div>
       <b class="rb-kpi-num dash-skeleton" data-source="summary" data-row="0" data-field="runners">—</b>
-      <div class="rb-kpi-sub"><span data-source="summary" data-row="0" data-field="men">—</span> men · <span data-source="summary" data-row="0" data-field="women">—</span> women</div></div>
-    <div class="rb-kpi"><div class="rb-kpi-label">Have run the Authentic</div>
+      <div class="rb-kpi-sub"><span data-source="summary" data-row="0" data-field="men">—</span> άνδρες · <span data-source="summary" data-row="0" data-field="women">—</span> γυναίκες</div></div>
+    <div class="rb-kpi"><div class="rb-kpi-label">Έχουν τρέξει τον Αυθεντικό</div>
       <b class="rb-kpi-num dash-skeleton" data-source="summary" data-row="0" data-field="authentic">—</b>
-      <div class="rb-kpi-sub"><span data-source="summary" data-row="0" data-field="movedUp">—</span> of them improve once it is adjusted</div></div>
-    <div class="rb-kpi"><div class="rb-kpi-label">Under 3 hours</div>
+      <div class="rb-kpi-sub"><span data-source="summary" data-row="0" data-field="movedUp">—</span> από αυτούς βελτιώνονται με τη διόρθωση</div></div>
+    <div class="rb-kpi"><div class="rb-kpi-label">Κάτω από 3 ώρες</div>
       <b class="rb-kpi-num dash-skeleton" id="kpi-sub3" data-source="summary" data-row="0" data-field="sub3Adj">—</b>
-      <div class="rb-kpi-sub" id="kpi-sub3-note">flat-equivalent best</div></div>
-    <div class="rb-kpi"><div class="rb-kpi-label">Missing birth year</div>
+      <div class="rb-kpi-sub" id="kpi-sub3-note">καλύτερος ισοδύναμος επίπεδου</div></div>
+    <div class="rb-kpi"><div class="rb-kpi-label">Χωρίς έτος γέννησης</div>
       <b class="rb-kpi-num dash-skeleton" data-source="summary" data-row="0" data-field="missingBirthYear">—</b>
-      <div class="rb-kpi-sub">left out of the age chart</div></div>
+      <div class="rb-kpi-sub">εκτός του γραφήματος ηλικίας</div></div>
   </section>
 
   <section class="rb-card" id="ranking">
-    <h2>The ranking</h2>
-    <p class="rb-note" id="ranking-note">Highlighted rows are runners whose Authentic time, adjusted, beats their flat PB. “Move” is the change in position that causes.</p>
+    <h2>Η κατάταξη</h2>
+    <p class="rb-note" id="ranking-note">Οι επισημασμένες γραμμές είναι δρομείς των οποίων ο διορθωμένος χρόνος στον Αυθεντικό είναι καλύτερος από το ρεκόρ τους σε επίπεδη διαδρομή. Η «Μεταβολή» δείχνει πόσες θέσεις κερδίζουν.</p>
     <div class="rb-tablebar">
       <div class="rb-legend" id="table-legend" data-source="enriched"></div>
-      <input class="rb-search" id="rb-search" type="search" placeholder="Search runner or city" aria-label="Search runners">
+      <input class="rb-search" id="rb-search" type="search" placeholder="Αναζήτηση δρομέα ή πόλης" aria-label="Αναζήτηση δρομέων">
     </div>
     <div class="rb-tablewrap">
       <table class="rb-table" id="rank-table" data-source="enriched" data-row-key="rank">
         <thead><tr>
-          <th id="th-pos" class="rb-num" data-field="rankAdj">Pos</th>
-          <th data-field="runner">Runner</th>
-          <th class="rb-num rb-opt" data-field="birthYear">Born</th>
-          <th class="rb-num" data-field="pb">PB</th>
-          <th class="rb-opt" data-field="pbPlace">Where</th>
-          <th class="rb-num rb-opt" data-field="pbYear">Year</th>
-          <th class="rb-num" data-field="authenticBest">Authentic</th>
-          <th class="rb-num" id="th-equiv" data-field="authEquiv">≈ Flat</th>
-          <th class="rb-num" id="th-move" data-field="moveAll">Move</th>
+          <th id="th-pos" class="rb-num" data-field="rankAdj">Θέση</th>
+          <th data-field="runner">Δρομέας</th>
+          <th class="rb-num rb-opt" data-field="birthYear">Γέννηση</th>
+          <th class="rb-num" data-field="pb">Ρεκόρ</th>
+          <th class="rb-opt" data-field="pbPlace">Πού</th>
+          <th class="rb-num rb-opt" data-field="pbYear">Έτος</th>
+          <th class="rb-num" data-field="authenticBest">Αυθεντικός</th>
+          <th class="rb-num" id="th-equiv" data-field="authEquiv">≈ Επίπεδος</th>
+          <th class="rb-num" id="th-move" data-field="moveAll">Μεταβολή</th>
         </tr></thead>
         <tbody id="rank-body"></tbody>
       </table>
@@ -112,40 +112,40 @@
   </section>
 
   <section class="rb-card" id="spread">
-    <h2>Where everyone sits</h2>
-    <p class="rb-note" id="spread-note">Every runner on one time axis, coloured by birth decade. A grey tail shows how far the Authentic adjustment moved them.</p>
+    <h2>Πού βρίσκεται ο καθένας</h2>
+    <p class="rb-note" id="spread-note">Όλοι οι δρομείς σε έναν άξονα χρόνου, με χρώμα ανά δεκαετία γέννησης. Η γκρι γραμμή δείχνει πόσο τους μετακίνησε η διόρθωση του Αυθεντικού.</p>
     <div class="rb-legend" id="decade-legend" data-source="enriched"></div>
     <div class="rb-chart" id="c-strip" data-source="enriched" style="min-height: 120px"></div>
   </section>
 
   <section class="rb-card" id="history">
-    <h2>Race by race</h2>
-    <p class="rb-note" id="history-note">Every marathon recorded for runners from the coach’s earlier sheet (up to spring 2024), on one shared scale. Rings are Athens Authentic races; with the adjustment on, a short tail shows their flat equivalent.</p>
+    <h2>Αγώνας προς αγώνα</h2>
+    <p class="rb-note" id="history-note">Κάθε καταγεγραμμένος μαραθώνιος για τους δρομείς του παλαιότερου φύλλου του προπονητή (έως την άνοιξη του 2024), σε κοινή κλίμακα. Οι κύκλοι είναι αγώνες στον Αυθεντικό· με τη διόρθωση ενεργή, μια μικρή γραμμή δείχνει τον ισοδύναμο χρόνο σε επίπεδη διαδρομή.</p>
     <div class="rb-multiples" id="c-history" data-source="history"></div>
   </section>
 
   <div class="rb-grid">
     <section class="rb-card" id="age">
-      <h2>Age when the PB was set</h2>
-      <p class="rb-note">Filled dots are men, rings are women. Runners without a birth year aren’t shown.</p>
+      <h2>Ηλικία στο ατομικό ρεκόρ</h2>
+      <p class="rb-note">Γεμάτες κουκκίδες οι άνδρες, κύκλοι οι γυναίκες. Δρομείς χωρίς έτος γέννησης δεν εμφανίζονται.</p>
       <div class="rb-chart" id="c-age" data-source="enriched"></div>
     </section>
     <section class="rb-card" id="decades">
-      <h2>By birth decade</h2>
-      <p class="rb-note">Runners per decade (solid men, light women) and each decade’s fastest.</p>
+      <h2>Ανά δεκαετία γέννησης</h2>
+      <p class="rb-note">Δρομείς ανά δεκαετία (έντονο οι άνδρες, ανοιχτό οι γυναίκες) και ο ταχύτερος κάθε δεκαετίας.</p>
       <div class="rb-bars" id="c-decade" data-source="byDecade"></div>
     </section>
     <section class="rb-card" id="years">
-      <h2>When the PBs were run</h2>
-      <p class="rb-note">How recent each runner’s personal best is.</p>
+      <h2>Πότε σημειώθηκαν τα ρεκόρ</h2>
+      <p class="rb-note">Πόσο πρόσφατο είναι το ατομικό ρεκόρ κάθε δρομέα.</p>
       <div class="rb-chart" id="c-year" data-source="byPbYear"></div>
     </section>
     <section class="rb-card" id="missing">
-      <h2>Birth year still missing</h2>
-      <p class="rb-note">Ask the coach or the runners for these to complete the age analysis.</p>
+      <h2>Λείπει ακόμη το έτος γέννησης</h2>
+      <p class="rb-note">Ζητήστε τα από τον προπονητή ή τους δρομείς για να ολοκληρωθεί η ανάλυση ηλικίας.</p>
       <div class="rb-tablewrap" style="max-height: 320px">
         <table class="rb-table" id="missing-table" data-source="enriched" data-row-key="rank">
-          <thead><tr><th data-field="runner">Runner</th><th class="rb-num" data-field="pb">PB</th><th data-field="pbPlace">Where</th><th class="rb-num" data-field="pbYear">Year</th></tr></thead>
+          <thead><tr><th data-field="runner">Δρομέας</th><th class="rb-num" data-field="pb">Ρεκόρ</th><th data-field="pbPlace">Πού</th><th class="rb-num" data-field="pbYear">Έτος</th></tr></thead>
           <tbody id="missing-body"></tbody>
         </table>
       </div>
@@ -154,12 +154,20 @@
 </div>
 
 <script>
+const CITY = {
+  Athens: 'Αθήνα', Barcelona: 'Βαρκελώνη', Belgrade: 'Βελιγράδι', Berlin: 'Βερολίνο', Boston: 'Βοστώνη', Copenhagen: 'Κοπεγχάγη',
+  Enschede: 'Ένσχεντε', Firenze: 'Φλωρεντία', Frankfurt: 'Φρανκφούρτη', Hamburg: 'Αμβούργο', Hannover: 'Ανόβερο', Ljubljana: 'Λιουμπλιάνα',
+  London: 'Λονδίνο', Milan: 'Μιλάνο', 'Mt.Charleston': 'Μάουντ Τσάρλεστον', Munich: 'Μόναχο', Nafplio: 'Ναύπλιο', 'New York': 'Νέα Υόρκη',
+  Paris: 'Παρίσι', Pisa: 'Πίζα', Prague: 'Πράγα', Rotterdam: 'Ρότερνταμ', 'San Sebastian': 'Σαν Σεμπαστιάν', Seville: 'Σεβίλλη',
+  Thessaloniki: 'Θεσσαλονίκη', Tokyo: 'Τόκιο', Valencia: 'Βαλένθια', Vienna: 'Βιέννη', Zurich: 'Ζυρίχη',
+};
 dash.calc('enriched', {
   inputs: ['runners'],
   title: 'Runners with flat equivalents',
   description: 'Each runner with times in seconds, birth decade, age at PB, the Authentic time minus 5:30 as a flat equivalent, and positions with and without that adjustment.',
   fn: (runners) => {
     const ADJUST = 330;
+    const city = (c) => CITY[c] || c;
     const sec = (t) => { if (!t) return null; const p = t.split(':').map(Number); return p[0] * 3600 + p[1] * 60 + p[2]; };
     const fmt = (s) => Math.floor(s / 3600) + ':' + String(Math.floor(s % 3600 / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0');
     const rows = runners.map((r) => {
@@ -171,7 +179,7 @@ dash.calc('enriched', {
         rank: r.rank, runner: r.surname + ' ' + r.name, gender: r.gender === 'Γ' ? 'Women' : 'Men',
         birthYear: r.birthYear, decade: born ? Math.floor(born / 10) * 10 + 's' : 'Unknown',
         pbYear: r.pbYear, ageAtPb: born && pbYear ? pbYear - born : null,
-        pb: r.pb, pbSec, pbPlace: r.pbPlace, authenticBest: r.authenticBest,
+        pb: r.pb, pbSec, pbPlace: city(r.pbPlace), authenticBest: r.authenticBest,
         authEquiv: equivSec == null ? '' : fmt(equivSec), authEquivSec: equivSec,
         bestFlat: fmt(best), bestFlatSec: best, improved: best < pbSec,
       };
@@ -247,13 +255,16 @@ dash.calc('byPbYear', {
   const decades = ['1960s', '1970s', '1980s', '1990s', 'Unknown'];
   const decColor = (d) => ({ '1960s': dash.colors[3], '1970s': dash.colors[0], '1980s': dash.colors[1], '1990s': dash.colors[2] }[d] || 'var(--cds-chart-muted)');
   const el = (id) => document.getElementById(id);
+  const genderLabel = (g) => ({ Men: 'Άνδρες', Women: 'Γυναίκες' }[g] || g);
+  const decLabel = (d) => (d === 'Unknown' ? 'Άγνωστο' : "Δεκ. '" + d.slice(2, 4));
+  const fmtDate = (d) => d.toLocaleDateString('el-GR', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' });
 
   // controls
   document.querySelectorAll('.rb-seg button').forEach((b) => b.addEventListener('click', () => dash.setParams({ gender: b.dataset.g })));
   el('rb-adj').addEventListener('change', (e) => dash.setParams({ adjust: e.target.checked }));
   el('rb-search').addEventListener('input', () => drawTable());
 
-  const failed = (node) => { node.replaceChildren(); const d = document.createElement('div'); d.className = 'rb-failed'; d.textContent = 'Failed to load'; node.appendChild(d); };
+  const failed = (node) => { node.replaceChildren(); const d = document.createElement('div'); d.className = 'rb-failed'; d.textContent = 'Αποτυχία φόρτωσης'; node.appendChild(d); };
   const tipFor = (box) => { let t = box.querySelector('.rb-tip'); if (!t) { t = document.createElement('div'); t.className = 'rb-tip'; box.appendChild(t); } return t; };
   const showTip = (box, event, head, lines) => {
     const t = tipFor(box);
@@ -282,7 +293,7 @@ dash.calc('byPbYear', {
       const box = el(id); box.replaceChildren();
       for (const d of decades) {
         const s = document.createElement('span'); const dot = document.createElement('i'); dot.className = 'rb-dot'; dot.style.background = decColor(d);
-        s.append(dot, d === 'Unknown' ? 'Birth year unknown' : 'Born in the ' + d); box.appendChild(s);
+        s.append(dot, d === 'Unknown' ? 'Άγνωστο έτος γέννησης' : "Γεννημένοι τη δεκαετία του '" + d.slice(2, 4)); box.appendChild(s);
       }
     }
   }
@@ -292,10 +303,10 @@ dash.calc('byPbYear', {
     const span = (row, field, text) => { const s = document.createElement('span'); s.className = 'rb-em'; s.dataset.source = 'enriched'; s.dataset.where = 'rank=' + encodeURIComponent(row.rank); s.dataset.field = field; s.textContent = text; return s; };
     const top = [...rows].sort((a, b) => b.moveAllN - a.moveAllN)[0];
     if (state().adj && top && top.moveAllN > 0) {
-      p.append('Counting the Authentic as a flat marathon, ', span(top, 'runner', top.runner), ' moves from ', span(top, 'rankRaw', String(top.rankRaw)), ' to ', span(top, 'rankAdj', String(top.rankAdj)),
-        ' overall: ', span(top, 'authenticBest', top.authenticBest), ' on the Authentic is worth about ', span(top, 'authEquiv', top.authEquiv), ' on a flat course.');
+      p.append('Αν ο Αυθεντικός μετρήσει ως επίπεδος μαραθώνιος, ο/η ', span(top, 'runner', top.runner), ' ανεβαίνει από τη θέση ', span(top, 'rankRaw', String(top.rankRaw)), ' στη θέση ', span(top, 'rankAdj', String(top.rankAdj)),
+        ' της γενικής: ', span(top, 'authenticBest', top.authenticBest), ' στον Αυθεντικό αντιστοιχεί σε περίπου ', span(top, 'authEquiv', top.authEquiv), ' σε επίπεδη διαδρομή.');
     } else {
-      p.append('Ranked by personal best as recorded. Switch on the Authentic adjustment to re-rank the runners whose best race is the Athens Authentic.');
+      p.append('Κατάταξη με βάση το καταγεγραμμένο ατομικό ρεκόρ. Ενεργοποιήστε τη διόρθωση του Αυθεντικού για να ανακαταταχθούν οι δρομείς με καλύτερο αγώνα τον Αυθεντικό Μαραθώνιο της Αθήνας.');
     }
   }
 
@@ -309,7 +320,7 @@ dash.calc('byPbYear', {
     el('th-pos').dataset.field = posField;
     el('th-move').dataset.field = moveField;
     el('th-move').hidden = !adj;
-    el('th-equiv').textContent = '≈ Flat';
+    el('th-equiv').textContent = '≈ Επίπεδος';
     const q = el('rb-search').value.trim().toLowerCase();
     const rows = shown(d.data).filter((r) => !q || (r.runner + ' ' + r.pbPlace).toLowerCase().includes(q)).sort((a, b) => a[posField] - b[posField]);
     for (const r of rows) {
@@ -383,7 +394,7 @@ dash.calc('byPbYear', {
       .attr('fill', 'var(--color-fg-muted)').style('font-size', 'var(--cds-font-size-caption)').text(fmtTick);
     for (const L of laneG) {
       const g2 = svg.append('g').attr('transform', `translate(0,${L.top})`);
-      g2.append('text').attr('x', 2).attr('y', 14).attr('fill', 'var(--color-fg-muted)').style('font-size', 'var(--cds-font-size-caption)').text(L.lane);
+      g2.append('text').attr('x', 2).attr('y', 14).attr('fill', 'var(--color-fg-muted)').style('font-size', 'var(--cds-font-size-caption)').text(genderLabel(L.lane));
       const base = L.h - 10 - rad;
       if (adj) {
         g2.selectAll('line.tail').data(L.pts.filter((p) => p.r.improved)).join('line').attr('class', 'tail')
@@ -393,16 +404,16 @@ dash.calc('byPbYear', {
       g2.selectAll('circle').data(L.pts).join('circle').attr('cx', (p) => p.x).attr('cy', (p) => base - p.y).attr('r', rad)
         .attr('fill', (p) => decColor(p.r.decade)).style('cursor', 'default')
         .on('mousemove', (event, p) => {
-          const r = p.r; const lines = ['PB ' + r.pb + ' · ' + r.pbPlace + (r.pbYear ? ' ' + r.pbYear : '')];
-          if (r.authenticBest) lines.push('Authentic ' + r.authenticBest + ' ≈ ' + r.authEquiv + ' flat');
-          lines.push(r.birthYear ? 'Born ' + r.birthYear : 'Birth year unknown');
+          const r = p.r; const lines = ['Ρεκόρ ' + r.pb + ' · ' + r.pbPlace + (r.pbYear ? ' ' + r.pbYear : '')];
+          if (r.authenticBest) lines.push('Αυθεντικός ' + r.authenticBest + ' ≈ ' + r.authEquiv + ' επίπεδος');
+          lines.push(r.birthYear ? 'Γέννηση ' + r.birthYear : 'Άγνωστο έτος γέννησης');
           showTip(box, event, r.runner, lines);
         })
         .on('mouseleave', () => hideTip(box));
     }
     el('spread-note').textContent = adj
-      ? 'Every runner on one time axis, coloured by birth decade. A grey tail shows how far the Authentic adjustment moved them.'
-      : 'Every runner on one time axis by recorded PB, coloured by birth decade.';
+      ? 'Όλοι οι δρομείς σε έναν άξονα χρόνου, με χρώμα ανά δεκαετία γέννησης. Η γκρι γραμμή δείχνει πόσο τους μετακίνησε η διόρθωση του Αυθεντικού.'
+      : 'Όλοι οι δρομείς σε έναν άξονα χρόνου με βάση το καταγεγραμμένο ρεκόρ, με χρώμα ανά δεκαετία γέννησης.';
   }
 
   function drawAge() {
@@ -428,11 +439,11 @@ dash.calc('byPbYear', {
     svg.append('line').attr('x1', ml).attr('x2', W - mr).attr('y1', H - mb).attr('y2', H - mb).attr('stroke', 'var(--cds-chart-axis)');
     svg.append('g').selectAll('text').data(xt).join('text').attr('x', (t) => x(t)).attr('y', H - mb + 16).attr('text-anchor', 'middle')
       .attr('fill', 'var(--color-fg-muted)').style('font-size', 'var(--cds-font-size-caption)').text((t) => t);
-    svg.append('text').attr('x', W - mr).attr('y', H - 2).attr('text-anchor', 'end').attr('fill', 'var(--color-fg-muted)').style('font-size', 'var(--cds-font-size-caption)').text('Age at PB');
+    svg.append('text').attr('x', W - mr).attr('y', H - 2).attr('text-anchor', 'end').attr('fill', 'var(--color-fg-muted)').style('font-size', 'var(--cds-font-size-caption)').text('Ηλικία στο ρεκόρ');
     svg.append('g').selectAll('circle').data(rows).join('circle').attr('cx', (r) => x(r.ageAtPb)).attr('cy', (r) => y(val(r))).attr('r', 5)
       .attr('fill', (r) => (r.gender === 'Women' ? 'none' : decColor(r.decade)))
       .attr('stroke', (r) => decColor(r.decade)).attr('stroke-width', (r) => (r.gender === 'Women' ? 2 : 0))
-      .on('mousemove', (event, r) => showTip(box, event, r.runner, ['Age ' + r.ageAtPb + ' at PB (' + r.pbYear + ')', (state().adj ? 'Flat-equivalent ' + r.bestFlat : 'PB ' + r.pb)]))
+      .on('mousemove', (event, r) => showTip(box, event, r.runner, ['Ηλικία ' + r.ageAtPb + ' στο ρεκόρ (' + r.pbYear + ')', (state().adj ? 'Ισοδύναμος επίπεδου ' + r.bestFlat : 'Ρεκόρ ' + r.pb)]))
       .on('mouseleave', () => hideTip(box));
   }
 
@@ -445,14 +456,14 @@ dash.calc('byPbYear', {
     const max = d3.max(d.data, (r) => r.total);
     for (const r of d.data) {
       const row = document.createElement('div'); row.className = 'rb-barrow';
-      const lab = document.createElement('div'); lab.textContent = r.decade === 'Unknown' ? 'Unknown' : r.decade; row.appendChild(lab);
+      const lab = document.createElement('div'); lab.textContent = decLabel(r.decade); row.appendChild(lab);
       const track = document.createElement('div'); track.className = 'rb-bartrack';
-      const seg = (n, op, who) => { if (!n) return; const s = document.createElement('div'); s.className = 'rb-barseg'; s.style.width = (n / max * 100) + '%'; s.style.background = decColor(r.decade); s.style.opacity = op; s.title = ''; s.addEventListener('mousemove', (e) => showTip(box, e, r.decade, [n + ' ' + who])); s.addEventListener('mouseleave', () => hideTip(box)); track.appendChild(s); };
+      const seg = (n, op, who) => { if (!n) return; const s = document.createElement('div'); s.className = 'rb-barseg'; s.style.width = (n / max * 100) + '%'; s.style.background = decColor(r.decade); s.style.opacity = op; s.title = ''; s.addEventListener('mousemove', (e) => showTip(box, e, decLabel(r.decade), [n + ' ' + who])); s.addEventListener('mouseleave', () => hideTip(box)); track.appendChild(s); };
       box.style.position = 'relative';
-      seg(r.men, 1, 'men'); seg(r.women, 0.45, 'women');
+      seg(r.men, 1, 'άνδρες'); seg(r.women, 0.45, 'γυναίκες');
       row.appendChild(track);
       const meta = document.createElement('div'); meta.className = 'rb-barmeta';
-      meta.textContent = r.total + ' runners · fastest ' + (adj ? r.fastestFlat + ' (' + r.fastestFlatRunner + ')' : r.fastestPb + ' (' + r.fastestPbRunner + ')');
+      meta.textContent = r.total + ' δρομείς · ταχύτερος ' + (adj ? r.fastestFlat + ' (' + r.fastestFlatRunner + ')' : r.fastestPb + ' (' + r.fastestPbRunner + ')');
       row.appendChild(meta);
       box.appendChild(row);
     }
@@ -471,7 +482,7 @@ dash.calc('byPbYear', {
     svg.append('g').selectAll('text').data(y.ticks(4)).join('text').attr('x', ml - 6).attr('y', (t) => y(t) + 4).attr('text-anchor', 'end').attr('fill', 'var(--color-fg-muted)').style('font-size', 'var(--cds-font-size-caption)').text((t) => t);
     svg.append('g').selectAll('rect').data(d.data).join('rect').attr('x', (r) => x(r.year)).attr('width', x.bandwidth()).attr('y', (r) => y(r.runners)).attr('height', (r) => y(0) - y(r.runners))
       .attr('rx', 3).attr('fill', dash.colors[0])
-      .on('mousemove', (event, r) => showTip(box, event, r.year, [r.runners + (r.runners === 1 ? ' runner' : ' runners')]))
+      .on('mousemove', (event, r) => showTip(box, event, r.year, [r.runners + (r.runners === 1 ? ' δρομέας' : ' δρομείς')]))
       .on('mouseleave', () => hideTip(box));
     const step = Math.ceil(d.data.length / Math.max(2, Math.floor(W / 46)));
     svg.append('g').selectAll('text').data(d.data.filter((_, i) => i % step === 0 || i === d.data.length - 1)).join('text').attr('x', (r) => x(r.year) + x.bandwidth() / 2).attr('y', H - 8)
@@ -492,13 +503,13 @@ dash.calc('byPbYear', {
     const yHi = Math.ceil(d3.max(races, (r) => r.s) / 600) * 600;
     const byRunner = d3.group(races.filter((r) => allowed.has(r.rank)), (r) => r.rank);
     const order = [...byRunner.keys()].sort((a, b) => Number(a) - Number(b));
-    if (!order.length) { const p = document.createElement('p'); p.className = 'rb-note'; p.textContent = 'No race history for this group.'; box.appendChild(p); return; }
+    if (!order.length) { const p = document.createElement('p'); p.className = 'rb-note'; p.textContent = 'Δεν υπάρχει ιστορικό αγώνων για αυτή την ομάδα.'; box.appendChild(p); return; }
     for (const rank of order) {
       const list = byRunner.get(rank).sort((a, b) => a.d - b.d);
       const cell = document.createElement('div'); cell.className = 'rb-mini';
       const head = document.createElement('div'); head.className = 'rb-mini-h';
       const nm = document.createElement('b'); nm.textContent = list[0].runner;
-      const ct = document.createElement('span'); ct.textContent = list.length + (list.length === 1 ? ' race' : ' races');
+      const ct = document.createElement('span'); ct.textContent = list.length + (list.length === 1 ? ' αγώνας' : ' αγώνες');
       head.append(nm, ct); cell.appendChild(head); box.appendChild(cell);
       const W = cell.clientWidth, H = 120, ml = 34, mr = 6, mt = 8, mb = 18;
       const x = d3.scaleUtc(xDom, [ml, W - mr]);
@@ -521,8 +532,8 @@ dash.calc('byPbYear', {
         .attr('fill', (r) => (r.authentic === 'yes' ? 'var(--color-panel)' : r.s === best ? dash.colors[0] : 'var(--cds-chart-muted)'))
         .attr('stroke', (r) => (r.authentic === 'yes' ? dash.colors[1] : 'none')).attr('stroke-width', 2)
         .on('mousemove', (event, r) => {
-          const lines = [r.race + ' · ' + d3.utcFormat('%-d %b %Y')(r.d), r.time];
-          if (r.authentic === 'yes') lines.push('Authentic ≈ ' + fmtShort(r.s - 330) + ':' + String((r.s - 330) % 60).padStart(2, '0') + ' flat');
+          const lines = [(CITY[r.race] || r.race) + ' · ' + fmtDate(r.d), r.time];
+          if (r.authentic === 'yes') lines.push('Αυθεντικός ≈ ' + fmtShort(r.s - 330) + ':' + String((r.s - 330) % 60).padStart(2, '0') + ' επίπεδος');
           showTip(box, event, r.runner, lines);
         })
         .on('mouseleave', () => hideTip(box));
@@ -545,7 +556,7 @@ dash.calc('byPbYear', {
     document.querySelectorAll('.rb-seg button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.g === g)));
     el('rb-adj').checked = adj;
     const sub3 = el('kpi-sub3'); sub3.dataset.field = adj ? 'sub3Adj' : 'sub3Raw';
-    el('kpi-sub3-note').textContent = adj ? 'flat-equivalent best' : 'personal best as recorded';
+    el('kpi-sub3-note').textContent = adj ? 'καλύτερος ισοδύναμος επίπεδου' : 'καταγεγραμμένο ατομικό ρεκόρ';
     const s = dash.data('summary');
     document.querySelectorAll('[data-source="summary"]').forEach((n) => {
       if (s.status === 'ok') { n.classList.remove('dash-skeleton'); n.textContent = String(s.data[0][n.dataset.field]); }

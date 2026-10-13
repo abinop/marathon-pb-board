@@ -9,11 +9,11 @@ runners = read('runners.csv')
 history = read('race-history.csv')
 data = json.dumps({'runners': runners, 'history': history}, ensure_ascii=False).replace('</', '<\\/')
 head = '''<!doctype html>
-<html lang="en">
+<html lang="el">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Marathon PB Board 2026</title>
+<title>Ατομικά ρεκόρ μαραθωνίου 2026</title>
 <style>
 :root {
   --font-anthropic-sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
@@ -76,7 +76,7 @@ window.dash = (() => {
 <div id="dash-root">
 '''.replace('__DATA__', data)
 tail = '''
-<p class="rb-footer">Authentic times are converted to a flat-course equivalent by subtracting 5:30. Data: the coach’s 2026 PB list and the earlier race-history sheet.</p>
+<p class="rb-footer">Οι χρόνοι του Αυθεντικού μετατρέπονται σε ισοδύναμους επίπεδης διαδρομής αφαιρώντας 5:30. Δεδομένα: η λίστα ρεκόρ 2026 του προπονητή και το παλαιότερο φύλλο ιστορικού αγώνων.</p>
 </div>
 </body>
 </html>

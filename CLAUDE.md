@@ -35,5 +35,5 @@ python3 -m http.server 8000   # then open http://localhost:8000
 
 ## Conventions
 - Keep it a static site: no bundler, no npm. d3 is the only dependency.
-- UI text is English and runner names stay in Greek.
+- UI text is Greek (`<html lang="el">`). City names are kept in English in the CSVs and shown in Greek through the `CITY` map in src/dashboard.html; add new cities there.
 - Check the page in both light and dark mode, and at phone width (~400px).
