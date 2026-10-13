@@ -534,6 +534,7 @@ dash.calc('byPbYear', {
         .on('mousemove', (event, r) => {
           const lines = [(CITY[r.race] || r.race) + ' · ' + fmtDate(r.d), r.time];
           if (r.authentic === 'yes') lines.push('Αυθεντικός ≈ ' + fmtShort(r.s - 330) + ':' + String((r.s - 330) % 60).padStart(2, '0') + ' επίπεδος');
+          if (r.notes) lines.push(/^https?:\/\//i.test(r.notes) ? 'Αποτελέσματα: ' + new URL(r.notes).hostname : r.notes);
           showTip(box, event, r.runner, lines);
         })
         .on('mouseleave', () => hideTip(box));

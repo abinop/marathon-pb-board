@@ -78,6 +78,7 @@
           <label>Χρόνος (ω:λλ:δδ) <input id="race-time" required inputmode="numeric" placeholder="2:59:41" pattern="\d:[0-5]\d:[0-5]\d"></label>
         </div>
         <label class="ad-check"><input id="race-auth" type="checkbox"> Αυθεντικός Μαραθώνιος της Αθήνας</label>
+        <label>Σχόλια ή σύνδεσμος αποτελεσμάτων (προαιρετικό) <input id="race-notes" maxlength="300" placeholder="π.χ. https://… ή «ζέστη, κράμπες στο 35ο»"></label>
         <div class="ad-btns"><button class="ad-primary" type="submit">Έλεγχος αλλαγών</button></div>
       </form>
 
@@ -109,7 +110,7 @@
       <p class="ad-msg" id="msg" style="margin-top: var(--cds-gap-md)"></p>
 
       <h2 style="margin-top: var(--cds-gap-lg)">Αγώνες</h2>
-      <div style="overflow-x: auto"><table class="ad-races"><thead><tr><th>Ημερομηνία</th><th>Αγώνας</th><th>Χρόνος</th><th>Αυθ.</th></tr></thead><tbody id="r-races"></tbody></table></div>
+      <div style="overflow-x: auto"><table class="ad-races"><thead><tr><th>Ημερομηνία</th><th>Αγώνας</th><th>Χρόνος</th><th>Αυθ.</th><th>Σχόλια</th></tr></thead><tbody id="r-races"></tbody></table></div>
       <p class="ad-muted" id="r-noraces" hidden>Δεν υπάρχουν καταγεγραμμένοι αγώνες.</p>
     </section>
   </div>
@@ -196,6 +197,10 @@
       const tr = document.createElement('tr');
       if (lastAdded && h.date === lastAdded) tr.className = 'ad-new';
       for (const v of [fmtDate(h.date), cityOut(h.race), h.time, h.authentic === 'yes' ? '✓' : '']) { const td = document.createElement('td'); td.textContent = v; tr.appendChild(td); }
+      const nt = document.createElement('td'); const note = h.notes || '';
+      if (/^https?:\/\//i.test(note)) nt.appendChild(Object.assign(document.createElement('a'), { href: note, textContent: 'Αποτελέσματα', target: '_blank', rel: 'noopener', className: 'ad-link' }));
+      else nt.textContent = note;
+      tr.appendChild(nt);
       return tr;
     }));
   }
@@ -237,7 +242,7 @@
 
   el('race-form').addEventListener('submit', (e) => {
     e.preventDefault();
-    check('/race', { rank: current, race: cityIn(el('race-place').value), date: el('race-date').value, time: el('race-time').value.trim(), authentic: el('race-auth').checked });
+    check('/race', { rank: current, race: cityIn(el('race-place').value), date: el('race-date').value, time: el('race-time').value.trim(), authentic: el('race-auth').checked, notes: el('race-notes').value.trim() });
   });
   el('edit-form').addEventListener('submit', (e) => {
     e.preventDefault();
