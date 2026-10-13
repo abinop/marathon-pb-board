@@ -1,6 +1,6 @@
 # RunTools best times board
 
-A static, single-page board of the best times of the RunTools team's athletes (Greek runners), from the coach's list. Page title «Οι καλύτεροι της RunTools». Marathon only for now; half marathon is next. Hosted on GitHub Pages, built by the Actions workflow on every push to `main`.
+A static, single-page board of the best times of the RunTools team's athletes (Greek runners), from the coach's list. Page title «RunTools · Λίστα PB». Marathon only for now; half marathon is next. Hosted on GitHub Pages, built by the Actions workflow on every push to `main`.
 
 ## How it's built
 - `data/runners.csv`: one row per runner. `rank` is the coach's list position and is the runner's id everywhere. `gender` is Greek: `Α` = man, `Γ` = woman. Times are `h:mm:ss`. Blank `birthYear`, `pbYear` or `authenticBest` means unknown or none.
