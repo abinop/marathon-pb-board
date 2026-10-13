@@ -5,8 +5,10 @@ import { pbkdf2Sync, randomBytes } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
 
 const ITER = 100000; // the Workers runtime allows at most 100000 PBKDF2 iterations
-const words = randomBytes(12).toString('base64url'); // 16 characters
-const password = words.slice(0, 4) + '-' + words.slice(4, 8) + '-' + words.slice(8, 12) + '-' + words.slice(12, 16);
+// 16 random characters in groups of 4, without look-alikes (0/O, 1/l/I)
+const ABC = 'abcdefghijkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+const chars = [...randomBytes(64)].filter((b) => b < 4 * ABC.length).slice(0, 16).map((b) => ABC[b % ABC.length]).join('');
+const password = chars.match(/.{4}/g).join('-');
 const salt = randomBytes(16);
 const hash = `pbkdf2$${ITER}$${salt.toString('base64')}$${pbkdf2Sync(password, salt, ITER, 32, 'sha256').toString('base64')}`;
 
