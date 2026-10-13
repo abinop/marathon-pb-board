@@ -35,6 +35,8 @@
 .rb-expand[aria-expanded="true"] { transform: rotate(90deg); color: var(--color-fg); }
 .rb-table tr.rb-detail td { padding: 0; background: var(--color-bg); white-space: normal; }
 .rb-table tr.rb-detail .rb-detailbox { position: sticky; left: 0; padding: var(--cds-pad-md) var(--cds-pad-md) var(--cds-pad-lg); }
+.rb-chip { display: inline-flex; align-items: center; gap: 4px; border: 1px solid var(--color-border-line); border-radius: 999px; padding: 0 7px 0 5px; font-size: 11px; line-height: 17px; color: var(--color-fg); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.rb-chip .rb-dot { width: 7px; height: 7px; }
 .rb .rb-sub3c { color: var(--c1); font-weight: var(--cds-font-weight-medium); }
 .rb-table { width: 100%; border-collapse: collapse; font-size: var(--cds-font-size-caption); font-variant-numeric: tabular-nums; }
 .rb-table th { position: sticky; top: 0; background: var(--color-panel); text-align: left; font-weight: var(--cds-font-weight-medium); color: var(--color-fg-muted); padding: var(--cds-pad-xs) var(--cds-pad-sm); border-bottom: 1px solid var(--color-border-line); white-space: nowrap; z-index: 1; }
@@ -122,7 +124,7 @@
 
   <section class="rb-card" id="spread">
     <h2>Πού βρίσκεται ο καθένας</h2>
-    <p class="rb-note" id="spread-note">Όλοι οι δρομείς σε έναν άξονα χρόνου, με χρώμα ανά δεκαετία γέννησης. Η γκρι γραμμή δείχνει πόσο τους μετακίνησε η διόρθωση του Αυθεντικού.</p>
+    <p class="rb-note" id="spread-note">Όλοι οι δρομείς σε έναν άξονα χρόνου, με χρώμα ανά ηλικιακή κατηγορία. Η γκρι γραμμή δείχνει πόσο τους μετακίνησε η διόρθωση του Αυθεντικού.</p>
     <div class="rb-legend" id="decade-legend" data-source="enriched"></div>
     <div class="rb-chart" id="c-strip" data-source="enriched" style="min-height: 120px"></div>
   </section>
@@ -140,9 +142,9 @@
       <div class="rb-chart" id="c-age" data-source="enriched"></div>
     </section>
     <section class="rb-card" id="decades">
-      <h2>Ανά δεκαετία γέννησης</h2>
-      <p class="rb-note">Δρομείς ανά δεκαετία (έντονο οι άνδρες, ανοιχτό οι γυναίκες) και ο ταχύτερος κάθε δεκαετίας.</p>
-      <div class="rb-bars" id="c-decade" data-source="byDecade"></div>
+      <h2>Ανά ηλικιακή κατηγορία</h2>
+      <p class="rb-note">Δρομείς ανά κατηγορία με βάση την ηλικία φέτος (έντονο οι άνδρες, ανοιχτό οι γυναίκες) και ο ταχύτερος κάθε κατηγορίας.</p>
+      <div class="rb-bars" id="c-decade" data-source="byAgeGroup"></div>
     </section>
     <section class="rb-card" id="years">
       <h2>Πότε σημειώθηκαν τα ρεκόρ</h2>
@@ -346,9 +348,10 @@ const RunnerDetail = (() => {
 dash.calc('enriched', {
   inputs: ['runners', 'history'],
   title: 'Runners with flat equivalents',
-  description: 'Each runner with times in seconds, birth decade, age at PB, the Authentic time minus 5:30 as a flat equivalent, and positions with and without that adjustment, and sub3Races: how many known races (recorded, plus the PB and best Authentic when not recorded) were under 3 hours.',
+  description: 'Each runner with times in seconds, age group (10-year bands by age this year: <30, 30+, 40+, 50+, 60+), age at PB, the Authentic time minus 5:30 as a flat equivalent, and positions with and without that adjustment, and sub3Races: how many known races (recorded, plus the PB and best Authentic when not recorded) were under 3 hours.',
   fn: (runners, history) => {
     const ADJUST = 330;
+    const THIS_YEAR = new Date().getFullYear();
     const city = (c) => CITY[c] || c;
     const sec = (t) => { if (!t) return null; const p = t.split(':').map(Number); return p[0] * 3600 + p[1] * 60 + p[2]; };
     const fmt = (s) => Math.floor(s / 3600) + ':' + String(Math.floor(s % 3600 / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0');
@@ -359,7 +362,7 @@ dash.calc('enriched', {
       const born = r.birthYear ? Number(r.birthYear) : null, pbYear = r.pbYear ? Number(r.pbYear) : null;
       return {
         rank: r.rank, runner: r.surname + ' ' + r.name, gender: r.gender === 'Γ' ? 'Women' : 'Men',
-        birthYear: r.birthYear, decade: born ? Math.floor(born / 10) * 10 + 's' : 'Unknown',
+        birthYear: r.birthYear, age: born ? THIS_YEAR - born : null, ageGroup: !born ? 'Unknown' : THIS_YEAR - born < 30 ? '<30' : Math.min(Math.floor((THIS_YEAR - born) / 10) * 10, 60) + '+',
         pbYear: r.pbYear, ageAtPb: born && pbYear ? pbYear - born : null,
         pb: r.pb, pbSec, pbPlace: city(r.pbPlace), authenticBest: r.authenticBest,
         authEquiv: equivSec == null ? '' : fmt(equivSec), authEquivSec: equivSec,
@@ -403,16 +406,16 @@ dash.calc('summary', {
   }],
 });
 
-dash.calc('byDecade', {
+dash.calc('byAgeGroup', {
   inputs: ['enriched'],
-  title: 'Runners by birth decade',
-  description: 'Men and women per birth decade, with the fastest PB and fastest flat-equivalent time in each.',
-  fn: (enriched) => ['1960s', '1970s', '1980s', '1990s', 'Unknown'].map((decade) => {
-    const group = enriched.filter((r) => r.decade === decade);
+  title: 'Runners by age group',
+  description: 'Men and women per age group (age this year), with the fastest PB and fastest flat-equivalent time in each.',
+  fn: (enriched) => ['<30', '30+', '40+', '50+', '60+', 'Unknown'].map((ageGroup) => {
+    const group = enriched.filter((r) => r.ageGroup === ageGroup);
     const byPb = [...group].sort((a, b) => a.pbSec - b.pbSec)[0];
     const byFlat = [...group].sort((a, b) => a.bestFlatSec - b.bestFlatSec)[0];
     return {
-      decade, men: group.filter((r) => r.gender === 'Men').length, women: group.filter((r) => r.gender === 'Women').length,
+      ageGroup, men: group.filter((r) => r.gender === 'Men').length, women: group.filter((r) => r.gender === 'Women').length,
       total: group.length, fastestPb: byPb ? byPb.pb : '', fastestPbRunner: byPb ? byPb.runner : '',
       fastestFlat: byFlat ? byFlat.bestFlat : '', fastestFlatRunner: byFlat ? byFlat.runner : '',
     };
@@ -435,11 +438,13 @@ dash.calc('byPbYear', {
 <script>
 (() => {
   const fmtShort = (s) => Math.floor(s / 3600) + ':' + String(Math.floor(s % 3600 / 60)).padStart(2, '0');
-  const decades = ['1960s', '1970s', '1980s', '1990s', 'Unknown'];
-  const decColor = (d) => ({ '1960s': dash.colors[3], '1970s': dash.colors[0], '1980s': dash.colors[1], '1990s': dash.colors[2] }[d] || 'var(--cds-chart-muted)');
+  // <30 and 60+ share a colour; nobody on the list is in either yet
+  const groups = ['<30', '30+', '40+', '50+', '60+', 'Unknown'];
+  const groupColor = (g) => ({ '<30': dash.colors[3], '30+': dash.colors[2], '40+': dash.colors[1], '50+': dash.colors[0], '60+': dash.colors[3] }[g] || 'var(--cds-chart-muted)');
+  const groupLabel = (g) => (g === 'Unknown' ? 'Άγνωστη' : g);
+  const chip = (g) => { const c = document.createElement('span'); c.className = 'rb-chip'; const dot = document.createElement('i'); dot.className = 'rb-dot'; dot.style.background = groupColor(g); c.append(dot, g === 'Unknown' ? '?' : g); c.title = g === 'Unknown' ? 'Άγνωστο έτος γέννησης' : 'Ηλικιακή κατηγορία ' + g; return c; };
   const el = (id) => document.getElementById(id);
   const genderLabel = (g) => ({ Men: 'Άνδρες', Women: 'Γυναίκες' }[g] || g);
-  const decLabel = (d) => (d === 'Unknown' ? 'Άγνωστο' : "Δεκ. '" + d.slice(2, 4));
   const fmtDate = (d) => d.toLocaleDateString('el-GR', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' });
 
   // controls
@@ -474,9 +479,10 @@ dash.calc('byPbYear', {
   function drawLegends() {
     for (const id of ['decade-legend', 'table-legend']) {
       const box = el(id); box.replaceChildren();
-      for (const d of decades) {
-        const s = document.createElement('span'); const dot = document.createElement('i'); dot.className = 'rb-dot'; dot.style.background = decColor(d);
-        s.append(dot, d === 'Unknown' ? 'Άγνωστο έτος γέννησης' : "Γεννημένοι τη δεκαετία του '" + d.slice(2, 4)); box.appendChild(s);
+      const present = new Set((dash.data('enriched').data || []).map((r) => r.ageGroup));
+      for (const g of groups.filter((x) => present.has(x))) {
+        const s = document.createElement('span'); const dot = document.createElement('i'); dot.className = 'rb-dot'; dot.style.background = groupColor(g);
+        s.append(dot, g === 'Unknown' ? 'Άγνωστο έτος γέννησης' : g === '<30' ? 'Κάτω από 30' : g + ' ετών'); box.appendChild(s);
       }
     }
   }
@@ -515,10 +521,9 @@ dash.calc('byPbYear', {
       const td = (text, cls) => { const c = document.createElement('td'); if (cls) c.className = cls; c.textContent = text; tr.appendChild(c); return c; };
       td(String(r[posField]), 'rb-num');
       const name = document.createElement('td'); name.className = 'rb-runner';
-      const dot = document.createElement('i'); dot.className = 'rb-dot'; dot.style.background = decColor(r.decade);
       const chev = document.createElement('button'); chev.type = 'button'; chev.className = 'rb-expand'; chev.textContent = '›';
       chev.setAttribute('aria-expanded', String(isOpen)); chev.setAttribute('aria-label', (isOpen ? 'Κλείσιμο' : 'Εξέλιξη χρόνων') + ': ' + r.runner);
-      name.append(chev, dot, r.runner); tr.appendChild(name);
+      name.append(chev, r.runner, chip(r.ageGroup)); tr.appendChild(name);
       td(r.birthYear, 'rb-num rb-opt');
       td(r.pb, 'rb-num' + (adj && r.improved ? '' : ' rb-strong'));
       td(r.sub3Races ? String(r.sub3Races) : '', 'rb-num rb-sub3c');
@@ -606,18 +611,18 @@ dash.calc('byPbYear', {
           .attr('stroke', 'var(--cds-chart-muted)').attr('stroke-width', 2).attr('stroke-linecap', 'round');
       }
       g2.selectAll('circle').data(L.pts).join('circle').attr('cx', (p) => p.x).attr('cy', (p) => base - p.y).attr('r', rad)
-        .attr('fill', (p) => decColor(p.r.decade)).style('cursor', 'default')
+        .attr('fill', (p) => groupColor(p.r.ageGroup)).style('cursor', 'default')
         .on('mousemove', (event, p) => {
           const r = p.r; const lines = ['Ρεκόρ ' + r.pb + ' · ' + r.pbPlace + (r.pbYear ? ' ' + r.pbYear : '')];
           if (r.authenticBest) lines.push('Αυθεντικός ' + r.authenticBest + ' ≈ ' + r.authEquiv + ' επίπεδος');
-          lines.push(r.birthYear ? 'Γέννηση ' + r.birthYear : 'Άγνωστο έτος γέννησης');
+          lines.push(r.birthYear ? 'Γέννηση ' + r.birthYear + ' · ' + r.age + ' ετών (' + r.ageGroup + ')' : 'Άγνωστο έτος γέννησης');
           showTip(box, event, r.runner, lines);
         })
         .on('mouseleave', () => hideTip(box));
     }
     el('spread-note').textContent = adj
-      ? 'Όλοι οι δρομείς σε έναν άξονα χρόνου, με χρώμα ανά δεκαετία γέννησης. Η γκρι γραμμή δείχνει πόσο τους μετακίνησε η διόρθωση του Αυθεντικού.'
-      : 'Όλοι οι δρομείς σε έναν άξονα χρόνου με βάση το καταγεγραμμένο ρεκόρ, με χρώμα ανά δεκαετία γέννησης.';
+      ? 'Όλοι οι δρομείς σε έναν άξονα χρόνου, με χρώμα ανά ηλικιακή κατηγορία. Η γκρι γραμμή δείχνει πόσο τους μετακίνησε η διόρθωση του Αυθεντικού.'
+      : 'Όλοι οι δρομείς σε έναν άξονα χρόνου με βάση το καταγεγραμμένο ρεκόρ, με χρώμα ανά ηλικιακή κατηγορία.';
   }
 
   function drawAge() {
@@ -645,14 +650,14 @@ dash.calc('byPbYear', {
       .attr('fill', 'var(--color-fg-muted)').style('font-size', 'var(--cds-font-size-caption)').text((t) => t);
     svg.append('text').attr('x', W - mr).attr('y', H - 2).attr('text-anchor', 'end').attr('fill', 'var(--color-fg-muted)').style('font-size', 'var(--cds-font-size-caption)').text('Ηλικία στο ρεκόρ');
     svg.append('g').selectAll('circle').data(rows).join('circle').attr('cx', (r) => x(r.ageAtPb)).attr('cy', (r) => y(val(r))).attr('r', 5)
-      .attr('fill', (r) => (r.gender === 'Women' ? 'none' : decColor(r.decade)))
-      .attr('stroke', (r) => decColor(r.decade)).attr('stroke-width', (r) => (r.gender === 'Women' ? 2 : 0))
+      .attr('fill', (r) => (r.gender === 'Women' ? 'none' : groupColor(r.ageGroup)))
+      .attr('stroke', (r) => groupColor(r.ageGroup)).attr('stroke-width', (r) => (r.gender === 'Women' ? 2 : 0))
       .on('mousemove', (event, r) => showTip(box, event, r.runner, ['Ηλικία ' + r.ageAtPb + ' στο ρεκόρ (' + r.pbYear + ')', (state().adj ? 'Ισοδύναμος επίπεδου ' + r.bestFlat : 'Ρεκόρ ' + r.pb)]))
       .on('mouseleave', () => hideTip(box));
   }
 
   function drawDecades() {
-    const box = el('c-decade'); const d = dash.data('byDecade');
+    const box = el('c-decade'); const d = dash.data('byAgeGroup');
     box.replaceChildren();
     if (d.status === 'error') return failed(box);
     if (d.status !== 'ok') return;
@@ -660,9 +665,9 @@ dash.calc('byPbYear', {
     const max = d3.max(d.data, (r) => r.total);
     for (const r of d.data) {
       const row = document.createElement('div'); row.className = 'rb-barrow';
-      const lab = document.createElement('div'); lab.textContent = decLabel(r.decade); row.appendChild(lab);
+      const lab = document.createElement('div'); lab.textContent = groupLabel(r.ageGroup); row.appendChild(lab);
       const track = document.createElement('div'); track.className = 'rb-bartrack';
-      const seg = (n, op, who) => { if (!n) return; const s = document.createElement('div'); s.className = 'rb-barseg'; s.style.width = (n / max * 100) + '%'; s.style.background = decColor(r.decade); s.style.opacity = op; s.title = ''; s.addEventListener('mousemove', (e) => showTip(box, e, decLabel(r.decade), [n + ' ' + who])); s.addEventListener('mouseleave', () => hideTip(box)); track.appendChild(s); };
+      const seg = (n, op, who) => { if (!n) return; const s = document.createElement('div'); s.className = 'rb-barseg'; s.style.width = (n / max * 100) + '%'; s.style.background = groupColor(r.ageGroup); s.style.opacity = op; s.title = ''; s.addEventListener('mousemove', (e) => showTip(box, e, groupLabel(r.ageGroup), [n + ' ' + who])); s.addEventListener('mouseleave', () => hideTip(box)); track.appendChild(s); };
       box.style.position = 'relative';
       seg(r.men, 1, 'άνδρες'); seg(r.women, 0.45, 'γυναίκες');
       row.appendChild(track);
