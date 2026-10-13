@@ -94,7 +94,9 @@ def write(name, title, extra_head, body):
 LOGO = (ROOT / 'src' / 'runtools-logo.svg').read_text(encoding='utf-8').strip()
 ICON = 'data:image/svg+xml;base64,' + base64.b64encode((ROOT / 'src' / 'runtools-icon.svg').read_bytes()).decode()
 head = head.replace('__ICON__', ICON)
-logo_tile = lambda height='': f'<span class="rb-logo"{" style=\"height:" + height + "\"" if height else ""}>{LOGO}</span>'
+def logo_tile(height=''):
+    style = ' style="height:' + height + '"' if height else ''
+    return '<span class="rb-logo"' + style + '>' + LOGO + '</span>'
 ADMIN_LINK = '<div class="rb-adminlink">' + logo_tile() + '<a href="admin.html" target="_blank" rel="noopener">Διαχείριση ↗</a></div>\n'
 write('index.html', 'Ατομικά ρεκόρ μαραθωνίου 2026', DASH_HEAD, ADMIN_LINK + page + FOOTER)
 
