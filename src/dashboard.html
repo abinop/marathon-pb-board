@@ -27,7 +27,15 @@
 .rb-tip .rb-tip-h { color: var(--cds-text-secondary); }
 .rb-tablebar { display: flex; flex-wrap: wrap; gap: var(--cds-gap-md); align-items: center; justify-content: space-between; margin-bottom: var(--cds-gap-sm); }
 .rb-search { font: inherit; font-size: var(--cds-font-size-caption); padding: var(--cds-pad-xs) var(--cds-pad-sm); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); background: var(--color-bg); color: var(--color-fg); min-width: 12rem; }
-.rb-tablewrap { max-height: 560px; overflow: auto; }
+.rb-tablewrap { max-height: min(720px, 80vh); overflow: auto; }
+.rb-table tr.rb-row { cursor: pointer; }
+.rb-table tr.rb-row:hover td { background: color-mix(in srgb, var(--color-fg) 4%, transparent); }
+.rb-table tr.rb-open td { background: color-mix(in srgb, var(--c1) 10%, transparent); }
+.rb-expand { font: inherit; border: 0; background: none; color: var(--color-fg-muted); cursor: pointer; padding: 0 2px; width: 1.2em; transition: transform var(--cds-dur-slow); }
+.rb-expand[aria-expanded="true"] { transform: rotate(90deg); color: var(--color-fg); }
+.rb-table tr.rb-detail td { padding: 0; background: var(--color-bg); white-space: normal; }
+.rb-table tr.rb-detail .rb-detailbox { position: sticky; left: 0; padding: var(--cds-pad-md) var(--cds-pad-md) var(--cds-pad-lg); }
+.rb .rb-sub3c { color: var(--c1); font-weight: var(--cds-font-weight-medium); }
 .rb-table { width: 100%; border-collapse: collapse; font-size: var(--cds-font-size-caption); font-variant-numeric: tabular-nums; }
 .rb-table th { position: sticky; top: 0; background: var(--color-panel); text-align: left; font-weight: var(--cds-font-weight-medium); color: var(--color-fg-muted); padding: var(--cds-pad-xs) var(--cds-pad-sm); border-bottom: 1px solid var(--color-border-line); white-space: nowrap; z-index: 1; }
 .rb-table td { padding: var(--cds-pad-xs) var(--cds-pad-sm); border-bottom: 1px solid var(--color-border-line); white-space: nowrap; }
@@ -88,7 +96,7 @@
 
   <section class="rb-card" id="ranking">
     <h2>Η κατάταξη</h2>
-    <p class="rb-note" id="ranking-note">Οι επισημασμένες γραμμές είναι δρομείς των οποίων ο διορθωμένος χρόνος στον Αυθεντικό είναι καλύτερος από το ρεκόρ τους σε επίπεδη διαδρομή. Η «Μεταβολή» δείχνει πόσες θέσεις κερδίζουν.</p>
+    <p class="rb-note" id="ranking-note">Οι επισημασμένες γραμμές είναι δρομείς των οποίων ο διορθωμένος χρόνος στον Αυθεντικό είναι καλύτερος από το ρεκόρ τους σε επίπεδη διαδρομή. Η «Μεταβολή» δείχνει πόσες θέσεις κερδίζουν. Η στήλη «&lt;3ω» μετράει τους αγώνες κάτω από 3 ώρες. Πατήστε έναν δρομέα για την εξέλιξη των χρόνων του.</p>
     <div class="rb-tablebar">
       <div class="rb-legend" id="table-legend" data-source="enriched"></div>
       <input class="rb-search" id="rb-search" type="search" placeholder="Αναζήτηση δρομέα ή πόλης" aria-label="Αναζήτηση δρομέων">
@@ -100,6 +108,7 @@
           <th data-field="runner">Δρομέας</th>
           <th class="rb-num rb-opt" data-field="birthYear">Γέννηση</th>
           <th class="rb-num" data-field="pb">Ρεκόρ</th>
+          <th class="rb-num" data-field="sub3Races" title="Αγώνες κάτω από 3 ώρες">&lt;3ω</th>
           <th class="rb-opt" data-field="pbPlace">Πού</th>
           <th class="rb-num rb-opt" data-field="pbYear">Έτος</th>
           <th class="rb-num" data-field="authenticBest">Αυθεντικός</th>
@@ -161,11 +170,184 @@ const CITY = {
   Paris: 'Παρίσι', Pisa: 'Πίζα', Prague: 'Πράγα', Rotterdam: 'Ρότερνταμ', 'San Sebastian': 'Σαν Σεμπαστιάν', Seville: 'Σεβίλλη',
   Thessaloniki: 'Θεσσαλονίκη', Tokyo: 'Τόκιο', Valencia: 'Βαλένθια', Vienna: 'Βιέννη', Zurich: 'Ζυρίχη',
 };
+// <runner-detail> Progress chart and stats for one runner. build.py copies this block into the admin page.
+const RunnerDetail = (() => {
+  const SUB3 = 3 * 3600;
+  const sec = (t) => { if (!t) return null; const p = t.split(':').map(Number); return p[0] * 3600 + p[1] * 60 + p[2]; };
+  const hms = (s) => Math.floor(s / 3600) + ':' + String(Math.floor(s % 3600 / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0');
+  const hm = (s) => Math.floor(s / 3600) + ':' + String(Math.floor(s % 3600 / 60)).padStart(2, '0');
+  const mmss = (s) => Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
+  const isLink = (n) => /^https?:\/\//i.test(n || '');
+  const fmtDate = (d) => d.toLocaleDateString('el-GR', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' });
+
+  // Recorded races, plus the PB and best Authentic when they are not among them
+  // (those come from the coach's list with a year only, or no date at all).
+  function knownRaces(runner, history) {
+    const mine = history.filter((h) => h.rank === runner.rank).map((h) => ({
+      date: new Date(h.date + 'T00:00:00Z'), race: h.race, time: h.time, s: sec(h.time),
+      authentic: h.authentic === 'yes', notes: h.notes || '', yearOnly: false,
+    }));
+    // the coach's list and the race sheets sometimes differ by a second or two
+    const recorded = (t, onlyAuth) => mine.some((h) => (!onlyAuth || h.authentic) && Math.abs(h.s - sec(t)) <= 5);
+    const extra = [];
+    if (runner.pb && !recorded(runner.pb)) {
+      extra.push({ date: runner.pbYear ? new Date(Date.UTC(Number(runner.pbYear), 6, 1)) : null, race: runner.pbPlace, time: runner.pb, s: sec(runner.pb),
+        authentic: runner.pb === runner.authenticBest, notes: '', yearOnly: true });
+    }
+    if (runner.authenticBest && runner.authenticBest !== runner.pb && !recorded(runner.authenticBest, true)) {
+      extra.push({ date: null, race: 'Athens', time: runner.authenticBest, s: sec(runner.authenticBest), authentic: true, notes: '', yearOnly: true });
+    }
+    return [...mine, ...extra].sort((a, b) => (a.date ? a.date - (b.date || Infinity) : 1));
+  }
+
+  function stats(races) {
+    const dated = races.filter((r) => r.date).sort((a, b) => a.date - b.date);
+    const best = races.reduce((a, r) => (!a || r.s < a.s ? r : a), null);
+    const first = dated[0] || null, last = dated[dated.length - 1] || null;
+    return {
+      count: races.length, sub3: races.filter((r) => r.s < SUB3).length, best, first, last,
+      gain: first && best && best.date && best.date > first.date ? first.s - best.s : 0,
+    };
+  }
+
+  const css = `
+.rd { display: grid; gap: var(--cds-gap-md); }
+.rd-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 8.5rem), 1fr)); gap: var(--cds-gap-sm) var(--cds-gap-md); }
+.rd-stats div { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); white-space: normal; }
+.rd-stats b { display: block; font-size: var(--cds-font-size-body); color: var(--color-fg); font-weight: 400; font-variant-numeric: tabular-nums; }
+.rd-chart { position: relative; }
+.rd-chart svg { display: block; overflow: visible; }
+.rd-tip { position: absolute; pointer-events: none; background: var(--cds-surface-popover); border: 1px solid var(--cds-border); border-radius: var(--cds-radius); box-shadow: var(--cds-shadow-popover); padding: var(--cds-pad-xs) var(--cds-pad-sm); font-size: var(--cds-font-size-caption); white-space: nowrap; z-index: 3; display: none; }
+.rd-tip b { font-weight: var(--cds-font-weight-medium); }
+.rd-key { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+.rd-key span { display: inline-flex; align-items: center; gap: 5px; }
+.rd-note { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); margin: 0; white-space: normal; }
+.rd-list { width: auto; min-width: min(100%, 34rem); border-collapse: collapse; font-size: var(--cds-font-size-caption); font-variant-numeric: tabular-nums; }
+.rd-list td { padding: 4px 14px 4px 0; border-bottom: 1px solid var(--color-border-line); white-space: nowrap; vertical-align: top; }
+.rd-list td:last-child { white-space: normal; color: var(--color-fg-muted); padding-right: 0; }
+.rd-list td.rd-t { text-align: right; }
+.rd-list a { color: var(--color-fg-muted); }
+.rd-sub3 { color: var(--c1); font-weight: var(--cds-font-weight-medium); }`;
+  let styled = false;
+  const style = () => { if (styled) return; styled = true; const s = document.createElement('style'); s.textContent = css; document.head.appendChild(s); };
+  const el = (tag, props = {}, ...kids) => { const n = Object.assign(document.createElement(tag), props); n.append(...kids); return n; };
+
+  // opts: { city(key) -> label, adjust: bool (Authentic tail), list: bool (race list under the chart), emptyHint: string }
+  function render(box, runner, history, opts = {}) {
+    style();
+    const city = opts.city || ((c) => c);
+    const races = knownRaces(runner, history), st = stats(races);
+    const root = el('div', { className: 'rd' });
+    const stat = (k, v, cls) => el('div', {}, k, el('b', { textContent: v, className: cls || '' }));
+    root.appendChild(el('div', { className: 'rd-stats' },
+      stat('Αγώνες', String(st.count)),
+      stat('Κάτω από 3 ώρες', st.sub3 + ' ' + (st.sub3 === 1 ? 'αγώνας' : 'αγώνες'), st.sub3 ? 'rd-sub3' : ''),
+      stat('Καλύτερος', st.best ? st.best.time : '—'),
+      stat('Βελτίωση από τον πρώτο', st.gain ? '−' + mmss(st.gain) : '—'),
+      stat('Τελευταίος', st.last ? city(st.last.race) + ' ' + st.last.date.getUTCFullYear() : '—')));
+
+    const dated = races.filter((r) => r.date);
+    if (dated.length < 2) {
+      root.appendChild(el('p', { className: 'rd-note', textContent: opts.emptyHint || 'Δεν υπάρχουν αρκετοί καταγεγραμμένοι αγώνες για γράφημα.' }));
+    } else {
+      const chart = el('div', { className: 'rd-chart' });
+      root.appendChild(chart);
+      box.replaceChildren(root); // chart needs a width before drawing
+      drawChart(chart, dated, st, opts.adjust, city);
+      root.appendChild(el('div', { className: 'rd-key' },
+        key('dot3', 'κάτω από 3 ώρες'), key('dot', 'αγώνας'), key('ring', 'Αυθεντικός'), key('hollow', 'ρεκόρ (μόνο έτος)'), key('step', 'καλύτερος μέχρι τότε'), key('dash', '3:00')));
+    }
+    if (opts.list && races.length) {
+      const rows = [...races].sort((a, b) => (b.date || 0) - (a.date || 0)).map((r) => el('tr', {},
+        el('td', { textContent: r.date ? (r.yearOnly ? String(r.date.getUTCFullYear()) : fmtDate(r.date)) : '—' }),
+        el('td', { textContent: city(r.race) + (r.authentic ? ' (Αυθ.)' : '') }),
+        el('td', { className: 'rd-t' + (r.s < SUB3 ? ' rd-sub3' : ''), textContent: r.time }),
+        el('td', {}, isLink(r.notes) ? el('a', { href: r.notes, target: '_blank', rel: 'noopener', textContent: 'Αποτελέσματα' }) : (r.notes || (r.yearOnly ? 'από τη λίστα του προπονητή' : '')))));
+      root.appendChild(el('div', { style: 'overflow-x: auto' }, el('table', { className: 'rd-list' }, el('tbody', {}, ...rows))));
+    }
+    if (root.parentNode !== box) box.replaceChildren(root);
+  }
+
+  function key(kind, label) {
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('width', 18); svg.setAttribute('height', 10);
+    const add = (tag, attrs) => { const n = document.createElementNS(svg.namespaceURI, tag); for (const [k, v] of Object.entries(attrs)) n.setAttribute(k, v); svg.appendChild(n); };
+    if (kind === 'dot3') add('circle', { cx: 9, cy: 5, r: 4, fill: 'var(--c1)' });
+    if (kind === 'dot') add('circle', { cx: 9, cy: 5, r: 4, fill: 'var(--cds-chart-muted)' });
+    if (kind === 'ring') add('circle', { cx: 9, cy: 5, r: 3.5, fill: 'var(--color-panel)', stroke: 'var(--c2)', 'stroke-width': 2 });
+    if (kind === 'hollow') add('circle', { cx: 9, cy: 5, r: 3.5, fill: 'none', stroke: 'var(--c1)', 'stroke-width': 1.5, 'stroke-dasharray': '2 1.5' });
+    if (kind === 'step') add('path', { d: 'M1 8 H8 V2 H17', fill: 'none', stroke: 'var(--c1)', 'stroke-width': 1.5, opacity: 0.6 });
+    if (kind === 'dash') add('line', { x1: 1, x2: 17, y1: 5, y2: 5, stroke: 'var(--color-fg-muted)', 'stroke-dasharray': '3 2' });
+    const s = document.createElement('span'); s.append(svg, label); return s;
+  }
+
+  function drawChart(box, races, st, adjust, city) {
+    const W = Math.max(260, box.clientWidth), H = 220, ml = 40, mr = 12, mt = 12, mb = 24;
+    const ys = races.flatMap((r) => [r.s, adjust && r.authentic ? r.s - 330 : r.s]);
+    let lo = d3.min(ys), hi = d3.max(ys);
+    if (lo > SUB3 && lo - SUB3 < 20 * 60) lo = SUB3; // show the 3:00 line when it is close
+    if (hi < SUB3 && SUB3 - hi < 20 * 60) hi = SUB3;
+    lo = Math.floor((lo - 120) / 300) * 300; hi = Math.ceil((hi + 120) / 300) * 300;
+    const xd = d3.extent(races, (r) => r.date);
+    const pad = Math.max(60 * 864e5, (xd[1] - xd[0]) * 0.04);
+    const x = d3.scaleUtc([new Date(+xd[0] - pad), new Date(+xd[1] + pad)], [ml, W - mr]);
+    const y = d3.scaleLinear([lo, hi], [mt, H - mb]); // faster = higher
+    const svg = d3.select(box).append('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`).attr('height', H);
+    const step = hi - lo > 3600 ? 1200 : hi - lo > 1500 ? 600 : 300;
+    const yt = d3.range(Math.ceil(lo / step) * step, hi + 1, step);
+    const text = (sel) => sel.attr('fill', 'var(--color-fg-muted)').style('font-size', '11px');
+    svg.append('g').selectAll('line').data(yt).join('line').attr('x1', ml).attr('x2', W - mr).attr('y1', y).attr('y2', y).attr('stroke', 'var(--cds-chart-grid)');
+    svg.append('g').selectAll('text').data(yt).join('text').attr('x', ml - 6).attr('y', (t) => y(t) + 4).attr('text-anchor', 'end').call(text).text(hm);
+    const years = d3.utcYear.range(d3.utcYear.ceil(x.domain()[0]), x.domain()[1]);
+    const every = Math.ceil(years.length / Math.max(2, Math.floor((W - ml) / 46)));
+    svg.append('g').selectAll('text').data(years.filter((_, i) => i % every === 0)).join('text').attr('x', x).attr('y', H - 6).attr('text-anchor', 'middle').call(text)
+      .text((t) => "'" + String(t.getUTCFullYear()).slice(2));
+    if (SUB3 > lo && SUB3 < hi) {
+      svg.append('line').attr('x1', ml).attr('x2', W - mr).attr('y1', y(SUB3)).attr('y2', y(SUB3)).attr('stroke', 'var(--color-fg-muted)').attr('stroke-dasharray', '4 3');
+      svg.append('text').attr('x', W - mr).attr('y', y(SUB3) - 4).attr('text-anchor', 'end').call(text).text('3:00');
+    }
+    // best so far
+    let best = Infinity;
+    const steps = races.map((r) => ({ date: r.date, s: (best = Math.min(best, r.s)) }));
+    steps.push({ date: x.domain()[1], s: best });
+    svg.append('path').datum(steps).attr('fill', 'none').attr('stroke', 'var(--c1)').attr('stroke-width', 2).attr('opacity', 0.45)
+      .attr('d', d3.line((p) => x(p.date), (p) => y(p.s)).curve(d3.curveStepAfter));
+    svg.append('path').datum(races).attr('fill', 'none').attr('stroke', 'var(--cds-chart-muted)').attr('stroke-width', 1)
+      .attr('d', d3.line((r) => x(r.date), (r) => y(r.s)));
+    if (adjust) {
+      svg.append('g').selectAll('line').data(races.filter((r) => r.authentic)).join('line')
+        .attr('x1', (r) => x(r.date)).attr('x2', (r) => x(r.date)).attr('y1', (r) => y(r.s)).attr('y2', (r) => y(r.s - 330))
+        .attr('stroke', 'var(--c2)').attr('stroke-width', 2).attr('stroke-linecap', 'round');
+    }
+    const tip = el('div', { className: 'rd-tip' }); box.appendChild(tip);
+    svg.append('g').selectAll('circle').data(races).join('circle')
+      .attr('cx', (r) => x(r.date)).attr('cy', (r) => y(r.s)).attr('r', (r) => (r === st.best ? 6.5 : 4.5))
+      .attr('fill', (r) => (r.yearOnly ? 'none' : r.authentic ? 'var(--color-panel)' : r.s < SUB3 ? 'var(--c1)' : 'var(--cds-chart-muted)'))
+      .attr('stroke', (r) => (r.yearOnly ? 'var(--c1)' : r.authentic ? 'var(--c2)' : r === st.best ? 'var(--color-fg)' : 'none'))
+      .attr('stroke-width', (r) => (r.authentic ? 2 : 1.5)).attr('stroke-dasharray', (r) => (r.yearOnly ? '2 1.5' : null))
+      .on('mousemove', (event, r) => {
+        const lines = [r.time + (r === st.best ? ' · καλύτερος' : '') + (r.s < SUB3 ? ' · κάτω από 3 ώρες' : '')];
+        if (r.authentic) lines.push('Αυθεντικός ≈ ' + hms(r.s - 330) + ' επίπεδος');
+        if (r.notes) lines.push(isLink(r.notes) ? 'Αποτελέσματα: ' + new URL(r.notes).hostname : r.notes);
+        tip.replaceChildren(el('b', { textContent: city(r.race) + ' · ' + (r.yearOnly ? r.date.getUTCFullYear() + ' (μόνο έτος)' : fmtDate(r.date)) }), ...lines.map((l) => el('div', { textContent: l })));
+        tip.style.display = 'block';
+        const b = box.getBoundingClientRect();
+        let tx = event.clientX - b.left + 12, ty = event.clientY - b.top + 12;
+        if (tx + tip.offsetWidth > b.width) tx = Math.max(0, event.clientX - b.left - tip.offsetWidth - 12);
+        tip.style.left = tx + 'px'; tip.style.top = ty + 'px';
+      })
+      .on('mouseleave', () => { tip.style.display = 'none'; });
+  }
+
+  return { knownRaces, stats, render, SUB3 };
+})();
+// </runner-detail>
+
 dash.calc('enriched', {
-  inputs: ['runners'],
+  inputs: ['runners', 'history'],
   title: 'Runners with flat equivalents',
-  description: 'Each runner with times in seconds, birth decade, age at PB, the Authentic time minus 5:30 as a flat equivalent, and positions with and without that adjustment.',
-  fn: (runners) => {
+  description: 'Each runner with times in seconds, birth decade, age at PB, the Authentic time minus 5:30 as a flat equivalent, and positions with and without that adjustment, and sub3Races: how many known races (recorded, plus the PB and best Authentic when not recorded) were under 3 hours.',
+  fn: (runners, history) => {
     const ADJUST = 330;
     const city = (c) => CITY[c] || c;
     const sec = (t) => { if (!t) return null; const p = t.split(':').map(Number); return p[0] * 3600 + p[1] * 60 + p[2]; };
@@ -182,6 +364,7 @@ dash.calc('enriched', {
         pb: r.pb, pbSec, pbPlace: city(r.pbPlace), authenticBest: r.authenticBest,
         authEquiv: equivSec == null ? '' : fmt(equivSec), authEquivSec: equivSec,
         bestFlat: fmt(best), bestFlatSec: best, improved: best < pbSec,
+        sub3Races: RunnerDetail.stats(RunnerDetail.knownRaces(r, history)).sub3,
       };
     });
     const place = (list, field, out) => {
@@ -323,23 +506,44 @@ dash.calc('byPbYear', {
     el('th-equiv').textContent = '≈ Επίπεδος';
     const q = el('rb-search').value.trim().toLowerCase();
     const rows = shown(d.data).filter((r) => !q || (r.runner + ' ' + r.pbPlace).toLowerCase().includes(q)).sort((a, b) => a[posField] - b[posField]);
+    const raw = dash.data('runners'), hist = dash.data('history');
     for (const r of rows) {
       const tr = document.createElement('tr'); tr.dataset.key = r.rank;
-      if (adj && r.improved) tr.className = 'rb-moved';
+      const isOpen = openRows.has(r.rank);
+      tr.className = 'rb-row' + (adj && r.improved ? ' rb-moved' : '') + (isOpen ? ' rb-open' : '');
+      tr.addEventListener('click', (e) => { if (!e.target.closest('a')) toggleRow(r.rank); });
       const td = (text, cls) => { const c = document.createElement('td'); if (cls) c.className = cls; c.textContent = text; tr.appendChild(c); return c; };
       td(String(r[posField]), 'rb-num');
       const name = document.createElement('td'); name.className = 'rb-runner';
       const dot = document.createElement('i'); dot.className = 'rb-dot'; dot.style.background = decColor(r.decade);
-      name.append(dot, r.runner); tr.appendChild(name);
+      const chev = document.createElement('button'); chev.type = 'button'; chev.className = 'rb-expand'; chev.textContent = '›';
+      chev.setAttribute('aria-expanded', String(isOpen)); chev.setAttribute('aria-label', (isOpen ? 'Κλείσιμο' : 'Εξέλιξη χρόνων') + ': ' + r.runner);
+      name.append(chev, dot, r.runner); tr.appendChild(name);
       td(r.birthYear, 'rb-num rb-opt');
       td(r.pb, 'rb-num' + (adj && r.improved ? '' : ' rb-strong'));
+      td(r.sub3Races ? String(r.sub3Races) : '', 'rb-num rb-sub3c');
       td(r.pbPlace, 'rb-opt');
       td(r.pbYear, 'rb-num rb-opt');
       td(r.authenticBest, 'rb-num');
       td(r.authEquiv, 'rb-num' + (adj && r.improved ? ' rb-strong' : ''));
       if (adj) { const m = r[moveField]; td(m, 'rb-num ' + (m.startsWith('+') ? 'rb-up' : 'rb-down')); }
       body.appendChild(tr);
+      if (isOpen && raw.status === 'ok' && hist.status === 'ok') {
+        const dtr = document.createElement('tr'); dtr.className = 'rb-detail';
+        const cell = document.createElement('td'); cell.colSpan = 20;
+        const inner = document.createElement('div'); inner.className = 'rb-detailbox';
+        inner.style.width = el('rank-table').parentElement.clientWidth + 'px';
+        cell.appendChild(inner); dtr.appendChild(cell); body.appendChild(dtr);
+        RunnerDetail.render(inner, raw.data.find((x) => x.rank === r.rank), hist.data,
+          { city: (c) => CITY[c] || c, adjust: adj, list: true, emptyHint: 'Για γράφημα χρειάζονται τουλάχιστον δύο αγώνες με ημερομηνία. Οι αγώνες προστίθενται από τη Διαχείριση.' });
+      }
     }
+  }
+
+  const openRows = new Set();
+  function toggleRow(rank) {
+    if (openRows.has(rank)) openRows.delete(rank); else openRows.add(rank);
+    drawTable();
   }
 
   function dodge(points, radius) {
