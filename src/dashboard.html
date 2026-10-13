@@ -2,7 +2,6 @@
 .rb { display: flex; flex-direction: column; gap: var(--cds-gap-lg); font-family: var(--font-anthropic-sans); }
 .rb-title { font-family: var(--font-anthropic-serif); font-weight: 400; font-size: var(--cds-font-size-title); margin: 0; }
 .rb-take { margin: var(--cds-gap-xs) 0 0; color: var(--color-fg-muted); font-size: var(--cds-font-size-body); max-width: 60rem; }
-.rb-take .rb-em { color: var(--color-fg); font-variant-numeric: tabular-nums; }
 .rb-controls { display: flex; flex-wrap: wrap; gap: var(--cds-gap-md); align-items: center; }
 .rb-seg { display: inline-flex; border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); overflow: hidden; }
 .rb-seg button { font: inherit; font-size: var(--cds-font-size-caption); padding: var(--cds-pad-xs) var(--cds-pad-md); background: transparent; color: var(--color-fg-muted); border: 0; cursor: pointer; }
@@ -46,7 +45,6 @@
 .rb-table td { padding: var(--cds-pad-xs) var(--cds-pad-sm); border-bottom: 1px solid var(--color-border-line); white-space: nowrap; }
 .rb-table td.rb-num, .rb-table th.rb-num { text-align: right; }
 .rb-table td.rb-runner { display: flex; align-items: center; gap: 8px; }
-.rb-table tr.rb-moved td { background: color-mix(in srgb, var(--color-ok) 7%, transparent); }
 .rb .rb-up { color: var(--color-ok); font-weight: var(--cds-font-weight-medium); }
 .rb .rb-down { color: var(--color-fg-muted); }
 .rb .rb-strong { font-weight: var(--cds-font-weight-medium); color: var(--color-fg); }
@@ -71,8 +69,8 @@
 
 <div class="rb">
   <header id="header">
-    <h1 class="rb-title" id="title">Ατομικά ρεκόρ μαραθωνίου 2026</h1>
-    <p class="rb-take dash-skeleton" id="takeaway"></p>
+    <h1 class="rb-title" id="title">Οι καλύτεροι της RunTools</h1>
+    <p class="rb-take" id="takeaway">Μαραθώνιος · ατομικά ρεκόρ των αθλητών της ομάδας</p>
   </header>
 
   <div class="rb-controls" id="controls">
@@ -101,7 +99,7 @@
 
   <section class="rb-card" id="ranking">
     <h2>Η κατάταξη</h2>
-    <p class="rb-note" id="ranking-note">Οι επισημασμένες γραμμές είναι δρομείς των οποίων ο διορθωμένος χρόνος στον Αυθεντικό είναι καλύτερος από το ρεκόρ τους σε επίπεδη διαδρομή. Η «Μεταβολή» δείχνει πόσες θέσεις κερδίζουν. Η στήλη «&lt;3ω» μετράει τους αγώνες κάτω από 3 ώρες. Πατήστε έναν δρομέα για την εξέλιξη των χρόνων του.</p>
+    <p class="rb-note" id="ranking-note">Με τη διόρθωση του Αυθεντικού ενεργή, ο χρόνος του Αυθεντικού μετράει μείον 5:30 και η «Μεταβολή» δείχνει πόσες θέσεις κερδίζει ο δρομέας. Η στήλη «&lt;3ω» μετράει τους αγώνες κάτω από 3 ώρες. Πατήστε έναν δρομέα για την εξέλιξη των χρόνων του.</p>
     <div class="rb-tablebar">
       <div class="rb-legend" id="table-legend" data-source="enriched"></div>
       <input class="rb-search" id="rb-search" type="search" placeholder="Αναζήτηση δρομέα ή πόλης" aria-label="Αναζήτηση δρομέων">
@@ -494,18 +492,6 @@ dash.calc('byPbYear', {
     }
   }
 
-  function drawTakeaway(rows, summary) {
-    const p = el('takeaway'); p.classList.remove('dash-skeleton'); p.replaceChildren();
-    const span = (row, field, text) => { const s = document.createElement('span'); s.className = 'rb-em'; s.dataset.source = 'enriched'; s.dataset.where = 'rank=' + encodeURIComponent(row.rank); s.dataset.field = field; s.textContent = text; return s; };
-    const top = [...rows].sort((a, b) => b.moveAllN - a.moveAllN)[0];
-    if (state().adj && top && top.moveAllN > 0) {
-      p.append('Αν ο Αυθεντικός μετρήσει ως επίπεδος μαραθώνιος, ο/η ', span(top, 'runner', top.runner), ' ανεβαίνει από τη θέση ', span(top, 'rankRaw', String(top.rankRaw)), ' στη θέση ', span(top, 'rankAdj', String(top.rankAdj)),
-        ' της γενικής: ', span(top, 'authenticBest', top.authenticBest), ' στον Αυθεντικό αντιστοιχεί σε περίπου ', span(top, 'authEquiv', top.authEquiv), ' σε επίπεδη διαδρομή.');
-    } else {
-      p.append('Κατάταξη με βάση το καταγεγραμμένο ατομικό ρεκόρ. Ενεργοποιήστε τη διόρθωση του Αυθεντικού για να ανακαταταχθούν οι δρομείς με καλύτερο αγώνα τον Αυθεντικό Μαραθώνιο της Αθήνας.');
-    }
-  }
-
   function drawTable() {
     const d = dash.data('enriched'); const body = el('rank-body');
     body.replaceChildren();
@@ -523,7 +509,7 @@ dash.calc('byPbYear', {
     for (const r of rows) {
       const tr = document.createElement('tr'); tr.dataset.key = r.rank;
       const isOpen = openRows.has(r.rank);
-      tr.className = 'rb-row' + (r.gender === 'Women' ? ' rb-woman' : '') + (adj && r.improved ? ' rb-moved' : '') + (isOpen ? ' rb-open' : '');
+      tr.className = 'rb-row' + (r.gender === 'Women' ? ' rb-woman' : '') + (isOpen ? ' rb-open' : '');
       tr.addEventListener('click', (e) => { if (!e.target.closest('a')) toggleRow(r.rank); });
       const td = (text, cls) => { const c = document.createElement('td'); if (cls) c.className = cls; c.textContent = text; tr.appendChild(c); return c; };
       td(String(r[posField]), 'rb-num');
@@ -789,9 +775,7 @@ dash.calc('byPbYear', {
       else if (s.status === 'error') { n.classList.remove('dash-skeleton'); n.textContent = '—'; }
       else n.textContent = '—';
     });
-    const e = dash.data('enriched');
     drawLegends();
-    if (e.status === 'ok') drawTakeaway(e.data, s.data); else { const p = el('takeaway'); p.replaceChildren(); if (e.status === 'error') p.classList.remove('dash-skeleton'); }
     drawTable(); drawStrip(); drawHistory(); drawAge(); drawDecades(); drawYears(); drawMissing();
   });
 })();

@@ -98,11 +98,11 @@ def logo_tile(height=''):
     style = ' style="height:' + height + '"' if height else ''
     return '<span class="rb-logo"' + style + '>' + LOGO + '</span>'
 ADMIN_LINK = '<div class="rb-adminlink">' + logo_tile() + '<a href="admin.html" target="_blank" rel="noopener">Διαχείριση ↗</a></div>\n'
-write('index.html', 'Ατομικά ρεκόρ μαραθωνίου 2026', DASH_HEAD, ADMIN_LINK + page + FOOTER)
+write('index.html', 'Οι καλύτεροι της RunTools · Μαραθώνιος', DASH_HEAD, ADMIN_LINK + page + FOOTER)
 
 # The admin page shares the dashboard's city names (Greek display <-> English key in the CSVs).
 city = re.search(r'const CITY = (\{.*?\n\});', page, re.S).group(1)
 # ...and the runner progress chart, between the <runner-detail> markers.
 detail = re.search(r'// <runner-detail>.*?// </runner-detail>', page, re.S).group(0)
 admin = (ROOT / 'src' / 'admin.html').read_text(encoding='utf-8').replace('__CITY__', city).replace('__RUNNER_DETAIL__', detail).replace('__ADMIN_API__', ADMIN_API).replace('__LOGO__', logo_tile('48px'))
-write('admin.html', 'Διαχείριση · Ατομικά ρεκόρ μαραθωνίου', '<meta name="robots" content="noindex">\n<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>\n', admin)
+write('admin.html', 'Διαχείριση · Οι καλύτεροι της RunTools', '<meta name="robots" content="noindex">\n<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>\n', admin)
