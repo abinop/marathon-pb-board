@@ -1,4 +1,4 @@
-# Marathon PB board 2026
+# RunTools best times board
 
 A one-page dashboard of the coach's list of marathon personal bests: click a runner for their progress chart, sub-3 count and race list; ranking, Athens Authentic adjustment (Authentic time − 5:30 ≈ flat-course equivalent), men/women filter, age-group colours and chips (30+, 40+, 50+), race-by-race history, age at PB and more.
 
