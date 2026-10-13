@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
-"""Builds index.html from src/dashboard.html and the CSV files in data/.
-Run: python3 build.py"""
-import csv, json, pathlib
+"""Builds index.html (from src/dashboard.html and the CSV files in data/) and
+admin.html (from src/admin.html). Run: python3 build.py"""
+import csv, json, pathlib, re
 ROOT = pathlib.Path(__file__).resolve().parent
 read = lambda name: list(csv.DictReader(open(ROOT / 'data' / name, encoding='utf-8')))
 page = (ROOT / 'src' / 'dashboard.html').read_text(encoding='utf-8')
+ADMIN_API = 'https://marathon-pb-admin.abinop.workers.dev'  # the Cloudflare Worker in admin-api/
 runners = read('runners.csv')
 history = read('race-history.csv')
 data = json.dumps({'runners': runners, 'history': history}, ensure_ascii=False).replace('</', '<\\/')
@@ -13,7 +14,7 @@ head = '''<!doctype html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Ατομικά ρεκόρ μαραθωνίου 2026</title>
+<title>__TITLE__</title>
 <style>
 :root {
   --font-anthropic-sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
@@ -42,7 +43,8 @@ body { margin: 0; background: var(--color-bg); color: var(--color-fg); font-fami
 .dash-skeleton:empty { display: block; min-height: 1em; background: var(--color-border-line); border-radius: 6px; }
 .rb-footer { margin-top: 32px; font-size: 12px; color: var(--color-fg-muted); }
 </style>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+'''
+DASH_HEAD = '''<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
 <script>
 window.dash = (() => {
   const raw = __DATA__;
@@ -71,15 +73,19 @@ window.dash = (() => {
   };
 })();
 </script>
-</head>
-<body>
-<div id="dash-root">
 '''.replace('__DATA__', data)
-tail = '''
+FOOTER = '''
 <p class="rb-footer">Οι χρόνοι του Αυθεντικού μετατρέπονται σε ισοδύναμους επίπεδης διαδρομής αφαιρώντας 5:30. Δεδομένα: η λίστα ρεκόρ 2026 του προπονητή και το παλαιότερο φύλλο ιστορικού αγώνων.</p>
-</div>
-</body>
-</html>
 '''
-(ROOT / 'index.html').write_text(head + page + tail, encoding='utf-8')
-print('Wrote', ROOT / 'index.html')
+
+def write(name, title, extra_head, body):
+    html = head.replace('__TITLE__', title) + extra_head + '</head>\n<body>\n<div id="dash-root">\n' + body + '\n</div>\n</body>\n</html>\n'
+    (ROOT / name).write_text(html, encoding='utf-8')
+    print('Wrote', ROOT / name)
+
+write('index.html', 'Ατομικά ρεκόρ μαραθωνίου 2026', DASH_HEAD, page + FOOTER)
+
+# The admin page shares the dashboard's city names (Greek display <-> English key in the CSVs).
+city = re.search(r'const CITY = (\{.*?\n\});', page, re.S).group(1)
+admin = (ROOT / 'src' / 'admin.html').read_text(encoding='utf-8').replace('__CITY__', city).replace('__ADMIN_API__', ADMIN_API)
+write('admin.html', 'Διαχείριση · Ατομικά ρεκόρ μαραθωνίου', '<meta name="robots" content="noindex">\n', admin)

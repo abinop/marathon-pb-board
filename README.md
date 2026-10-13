@@ -4,9 +4,9 @@ A one-page dashboard of the coach's list of marathon personal bests: ranking, At
 
 ## Updating the data
 
-1. Edit `data/runners.csv` (one row per runner) or `data/race-history.csv` (one row per race).
-2. Run `python3 build.py` — it writes `index.html` with the data built in.
-3. Commit and push; GitHub Pages republishes automatically.
+**Admin page** (`/admin.html` on the site, login required): pick an athlete, then add a new race (city, date, finish time, Athens Authentic or not) or edit their details. A faster race updates the athlete's PB automatically. Each save is a commit to this repo, and the site updates 1–2 minutes later.
+
+**By hand:** edit the CSVs below and push to `main`. The GitHub Action runs `build.py` and publishes. For a local preview, run `python3 build.py` and `python3 -m http.server 8000`.
 
 ### `data/runners.csv`
 | column | meaning |
@@ -22,6 +22,8 @@ A one-page dashboard of the coach's list of marathon personal bests: ranking, At
 `rank` must match a runner's `rank` in `runners.csv`. `authentic` is `yes` for Athens races.
 
 ## Files
-- `index.html` — the built page (what GitHub Pages serves)
+- `src/admin.html` — the admin page
+- `admin-api/` — the Cloudflare Worker that checks the admin login and commits the changes
+- `.github/workflows/pages.yml` — builds and publishes the site on every push to `main`
 - `src/dashboard.html` — the dashboard's markup, styles and charts
-- `build.py` — combines the two above with the data
+- `build.py` — builds `index.html` and `admin.html` (not committed) from `src/` and the data

@@ -1,0 +1,10 @@
+name = "marathon-pb-admin"
+main = "worker.js"
+compatibility_date = "2025-09-01"
+
+[vars]
+REPO = "abinop/marathon-pb-board"
+BRANCH = "main"
+ALLOWED_ORIGINS = "https://abinop.github.io,http://localhost:8000,http://127.0.0.1:8000"
+
+# Secrets (npx wrangler secret put <NAME>): ADMIN_USER, ADMIN_PASS_HASH, SESSION_SECRET, GITHUB_TOKEN

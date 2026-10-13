@@ -1,0 +1,267 @@
+<style>
+.ad { display: flex; flex-direction: column; gap: var(--cds-gap-lg); max-width: 760px; margin: 0 auto; }
+.ad h1 { font-family: var(--font-anthropic-serif); font-weight: 400; font-size: var(--cds-font-size-title); margin: 0; }
+.ad h2 { font-size: var(--cds-font-size-heading); font-weight: var(--cds-font-weight-medium); margin: 0 0 var(--cds-gap-sm); }
+.ad-bar { display: flex; justify-content: space-between; align-items: baseline; gap: var(--cds-gap-md); flex-wrap: wrap; }
+.ad-bar a, .ad-link { color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); }
+.ad-card { background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-lg); }
+.ad-form { display: grid; gap: var(--cds-gap-md); }
+.ad-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 10rem), 1fr)); gap: var(--cds-gap-md); }
+.ad label { display: grid; gap: var(--cds-gap-xs); font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+.ad label.ad-check { display: flex; align-items: center; gap: var(--cds-gap-sm); color: var(--color-fg); font-size: var(--cds-font-size-body); }
+.ad input, .ad select { font: inherit; font-size: 16px; color: var(--color-fg); background: var(--color-bg); border: 1px solid var(--color-border-line); border-radius: 8px; padding: 9px 10px; width: 100%; min-width: 0; }
+.ad input[type="checkbox"] { width: 20px; height: 20px; }
+.ad input:focus, .ad select:focus { outline: 2px solid var(--c1); outline-offset: 1px; }
+.ad-btns { display: flex; gap: var(--cds-gap-sm); flex-wrap: wrap; }
+.ad button { font: inherit; padding: 10px 16px; border-radius: 8px; border: 1px solid var(--color-border-line); background: var(--color-panel); color: var(--color-fg); cursor: pointer; }
+.ad button.ad-primary { background: var(--c1); border-color: var(--c1); color: var(--color-bg); font-weight: var(--cds-font-weight-medium); }
+.ad button:disabled { opacity: .5; cursor: default; }
+.ad-msg { font-size: var(--cds-font-size-body); margin: 0; }
+.ad-msg:empty { display: none; }
+.ad-msg.ad-err { color: var(--color-bad); }
+.ad-msg.ad-ok { color: var(--color-ok); }
+.ad-preview { border: 1px dashed var(--color-border-line); border-radius: 8px; padding: var(--cds-pad-md); }
+.ad-preview ul { margin: var(--cds-gap-xs) 0 var(--cds-gap-md); padding-left: 1.2em; }
+.ad-facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 9rem), 1fr)); gap: var(--cds-gap-sm) var(--cds-gap-md); margin: 0 0 var(--cds-gap-md); }
+.ad-facts div { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+.ad-facts b { display: block; font-size: var(--cds-font-size-body); color: var(--color-fg); font-weight: 400; font-variant-numeric: tabular-nums; }
+.ad-tabs { display: inline-flex; border: 1px solid var(--color-border-line); border-radius: 8px; overflow: hidden; margin-bottom: var(--cds-gap-md); }
+.ad .ad-tabs button { border: 0; border-radius: 0; color: var(--color-fg-muted); background: transparent; }
+.ad .ad-tabs button + button { border-left: 1px solid var(--color-border-line); }
+.ad .ad-tabs button[aria-selected="true"] { background: var(--color-bg); color: var(--color-fg); font-weight: var(--cds-font-weight-medium); }
+.ad-races { width: 100%; border-collapse: collapse; font-size: var(--cds-font-size-caption); font-variant-numeric: tabular-nums; }
+.ad-races th { text-align: left; color: var(--color-fg-muted); font-weight: 400; padding: 4px 6px; border-bottom: 1px solid var(--color-border-line); }
+.ad-races td { padding: 5px 6px; border-bottom: 1px solid var(--color-border-line); }
+.ad-races .ad-new td { background: color-mix(in srgb, var(--color-ok) 14%, transparent); }
+.ad-muted { color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); margin: 0; }
+[hidden] { display: none !important; }
+</style>
+
+<div class="ad">
+  <div class="ad-bar">
+    <h1>Διαχείριση</h1>
+    <span><a href="./">← Πίνακας ρεκόρ</a> <button type="button" id="logout" hidden>Αποσύνδεση</button></span>
+  </div>
+
+  <section class="ad-card" id="login-card">
+    <h2>Σύνδεση</h2>
+    <form class="ad-form" id="login-form">
+      <label>Όνομα χρήστη <input id="login-user" autocomplete="username" required></label>
+      <label>Κωδικός <input id="login-pass" type="password" autocomplete="current-password" required></label>
+      <div class="ad-btns"><button class="ad-primary" type="submit">Σύνδεση</button></div>
+      <p class="ad-msg ad-err" id="login-msg"></p>
+    </form>
+  </section>
+
+  <div id="app" hidden>
+    <section class="ad-card">
+      <h2>Αθλητής</h2>
+      <div class="ad-form">
+        <label>Αναζήτηση <input id="search" type="search" placeholder="Επώνυμο ή όνομα"></label>
+        <label>Επιλογή <select id="pick"></select></label>
+      </div>
+    </section>
+
+    <section class="ad-card" id="runner-card" hidden style="margin-top: var(--cds-gap-lg)">
+      <h2 id="r-name"></h2>
+      <div class="ad-facts" id="r-facts"></div>
+
+      <div class="ad-tabs" role="tablist">
+        <button type="button" role="tab" data-tab="race" aria-selected="true">Νέος αγώνας</button>
+        <button type="button" role="tab" data-tab="edit" aria-selected="false">Στοιχεία αθλητή</button>
+      </div>
+
+      <form class="ad-form" id="race-form" data-panel="race">
+        <div class="ad-row">
+          <label>Αγώνας (πόλη) <input id="race-place" list="cities" required autocomplete="off" placeholder="π.χ. Βαλένθια"></label>
+          <label>Ημερομηνία <input id="race-date" type="date" required></label>
+          <label>Χρόνος (ω:λλ:δδ) <input id="race-time" required inputmode="numeric" placeholder="2:59:41" pattern="\d:[0-5]\d:[0-5]\d"></label>
+        </div>
+        <label class="ad-check"><input id="race-auth" type="checkbox"> Αυθεντικός Μαραθώνιος της Αθήνας</label>
+        <div class="ad-btns"><button class="ad-primary" type="submit">Έλεγχος αλλαγών</button></div>
+      </form>
+
+      <form class="ad-form" id="edit-form" data-panel="edit" hidden>
+        <div class="ad-row">
+          <label>Επώνυμο <input name="surname" required></label>
+          <label>Όνομα <input name="name" required></label>
+          <label>Φύλο <select name="gender"><option value="Α">Άνδρας</option><option value="Γ">Γυναίκα</option></select></label>
+          <label>Έτος γέννησης <input name="birthYear" inputmode="numeric" placeholder="άγνωστο"></label>
+        </div>
+        <div class="ad-row">
+          <label>Ατομικό ρεκόρ <input name="pb" required inputmode="numeric" placeholder="2:59:41"></label>
+          <label>Τόπος ρεκόρ <input name="pbPlace" list="cities" required autocomplete="off"></label>
+          <label>Έτος ρεκόρ <input name="pbYear" inputmode="numeric"></label>
+          <label>Καλύτερο στον Αυθεντικό <input name="authenticBest" inputmode="numeric" placeholder="κανένα"></label>
+        </div>
+        <p class="ad-muted">Για νέο αγώνα χρησιμοποιήστε την καρτέλα «Νέος αγώνας»: ενημερώνει μόνη της το ρεκόρ.</p>
+        <div class="ad-btns"><button class="ad-primary" type="submit">Έλεγχος αλλαγών</button></div>
+      </form>
+
+      <div class="ad-preview" id="preview" hidden style="margin-top: var(--cds-gap-md)">
+        <b>Θα γίνουν οι εξής αλλαγές:</b>
+        <ul id="preview-list"></ul>
+        <div class="ad-btns">
+          <button class="ad-primary" type="button" id="save">Αποθήκευση</button>
+          <button type="button" id="cancel">Ακύρωση</button>
+        </div>
+      </div>
+      <p class="ad-msg" id="msg" style="margin-top: var(--cds-gap-md)"></p>
+
+      <h2 style="margin-top: var(--cds-gap-lg)">Αγώνες</h2>
+      <div style="overflow-x: auto"><table class="ad-races"><thead><tr><th>Ημερομηνία</th><th>Αγώνας</th><th>Χρόνος</th><th>Αυθ.</th></tr></thead><tbody id="r-races"></tbody></table></div>
+      <p class="ad-muted" id="r-noraces" hidden>Δεν υπάρχουν καταγεγραμμένοι αγώνες.</p>
+    </section>
+  </div>
+  <datalist id="cities"></datalist>
+</div>
+
+<script>
+(() => {
+  const API = location.hostname === 'localhost' || location.hostname === '127.0.0.1' ? 'http://localhost:8787' : '__ADMIN_API__';
+  const CITY = __CITY__;
+  const el = (id) => document.getElementById(id);
+  const toKey = Object.fromEntries(Object.entries(CITY).map(([k, v]) => [v.toLowerCase(), k]));
+  const cityIn = (v) => toKey[v.trim().toLowerCase()] || v.trim();
+  const cityOut = (v) => CITY[v] || v;
+  const fmtDate = (d) => new Date(d + 'T00:00:00Z').toLocaleDateString('el-GR', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' });
+
+  const store = {
+    get: () => { try { return sessionStorage.getItem('adminToken'); } catch { return null; } },
+    set: (t) => { try { t ? sessionStorage.setItem('adminToken', t) : sessionStorage.removeItem('adminToken'); } catch {} },
+  };
+  let token = store.get(), data = null, current = null, pending = null, lastAdded = null;
+
+  async function api(path, payload) {
+    const res = await fetch(API + path, {
+      method: payload ? 'POST' : 'GET',
+      headers: { ...(token ? { Authorization: 'Bearer ' + token } : {}), ...(payload ? { 'Content-Type': 'application/json' } : {}) },
+      body: payload ? JSON.stringify(payload) : undefined,
+    }).catch(() => { throw new Error('Δεν υπάρχει σύνδεση με τον διακομιστή.'); });
+    const out = await res.json().catch(() => ({}));
+    if (res.status === 401 && path !== '/login') { signOut(out.error); throw new Error(out.error); }
+    if (!res.ok) throw new Error(out.error || 'Σφάλμα ' + res.status);
+    return out;
+  }
+
+  const setMsg = (node, text, kind) => { node.textContent = text || ''; node.className = 'ad-msg' + (kind ? ' ad-' + kind : ''); };
+
+  function signOut(reason) {
+    token = null; store.set(null); data = null;
+    el('app').hidden = true; el('logout').hidden = true; el('login-card').hidden = false;
+    setMsg(el('login-msg'), reason || '', 'err');
+  }
+
+  async function start() {
+    el('login-card').hidden = true; el('app').hidden = false; el('logout').hidden = false;
+    await reload();
+  }
+
+  async function reload() {
+    data = await api('/data');
+    const opts = [...new Set([...Object.values(CITY), ...data.runners.map((r) => cityOut(r.pbPlace)), ...data.history.map((h) => cityOut(h.race))])].sort((a, b) => a.localeCompare(b, 'el'));
+    el('cities').replaceChildren(...opts.map((c) => Object.assign(document.createElement('option'), { value: c })));
+    fillPick();
+    if (current) showRunner(current);
+  }
+
+  const norm = (s) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+
+  function fillPick() {
+    const q = norm(el('search').value.trim());
+    const list = data.runners.filter((r) => !q || norm(r.surname + ' ' + r.name).includes(q))
+      .sort((a, b) => (a.surname + ' ' + a.name).localeCompare(b.surname + ' ' + b.name, 'el'));
+    const pick = el('pick');
+    pick.replaceChildren(Object.assign(document.createElement('option'), { value: '', textContent: list.length ? `— ${list.length} αθλητές —` : 'Κανένα αποτέλεσμα' }),
+      ...list.map((r) => Object.assign(document.createElement('option'), { value: r.rank, textContent: `${r.surname} ${r.name} · ${r.pb}` })));
+    pick.value = list.some((r) => r.rank === current) ? current : '';
+    if (list.length === 1 && q) { pick.value = list[0].rank; showRunner(list[0].rank); }
+  }
+
+  function showRunner(rank) {
+    const r = data.runners.find((x) => x.rank === rank);
+    if (!r) { el('runner-card').hidden = true; current = null; return; }
+    if (current !== rank) { lastAdded = null; setMsg(el('msg'), ''); clearPreview(); el('race-form').reset(); }
+    current = rank;
+    el('runner-card').hidden = false;
+    el('r-name').textContent = r.surname + ' ' + r.name;
+    const facts = [['Ατομικό ρεκόρ', r.pb], ['Τόπος / έτος', cityOut(r.pbPlace) + ' ' + (r.pbYear || '')], ['Αυθεντικός', r.authenticBest || '—'], ['Γέννηση', r.birthYear || 'άγνωστο'], ['Φύλο', r.gender === 'Γ' ? 'Γυναίκα' : 'Άνδρας'], ['Θέση στη λίστα', r.rank]];
+    el('r-facts').replaceChildren(...facts.map(([k, v]) => { const d = document.createElement('div'); const b = document.createElement('b'); b.textContent = v; d.append(k, b); return d; }));
+    const f = el('edit-form');
+    for (const k of ['surname', 'name', 'gender', 'birthYear', 'pb', 'pbYear', 'authenticBest']) f.elements[k].value = r[k];
+    f.elements.pbPlace.value = cityOut(r.pbPlace);
+    const races = data.history.filter((h) => h.rank === rank).sort((a, b) => b.date.localeCompare(a.date));
+    el('r-noraces').hidden = races.length > 0;
+    el('r-races').replaceChildren(...races.map((h) => {
+      const tr = document.createElement('tr');
+      if (lastAdded && h.date === lastAdded) tr.className = 'ad-new';
+      for (const v of [fmtDate(h.date), cityOut(h.race), h.time, h.authentic === 'yes' ? '✓' : '']) { const td = document.createElement('td'); td.textContent = v; tr.appendChild(td); }
+      return tr;
+    }));
+  }
+
+  function clearPreview() { pending = null; el('preview').hidden = true; }
+
+  async function check(path, payload) {
+    clearPreview(); setMsg(el('msg'), 'Έλεγχος…');
+    try {
+      const out = await api(path, { ...payload, dryRun: true });
+      pending = { path, payload };
+      el('preview-list').replaceChildren(...out.notes.map((n) => Object.assign(document.createElement('li'), { textContent: Object.entries(CITY).reduce((t, [k, v]) => t.split(k).join(v), n) })));
+      el('preview').hidden = false; setMsg(el('msg'), '');
+      el('save').focus();
+    } catch (e) { setMsg(el('msg'), e.message, 'err'); }
+  }
+
+  // ---- events ----
+  el('login-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = e.submitter; btn.disabled = true; setMsg(el('login-msg'), '');
+    try {
+      const out = await api('/login', { user: el('login-user').value, password: el('login-pass').value });
+      token = out.token; store.set(token); el('login-pass').value = '';
+      await start();
+    } catch (err) { setMsg(el('login-msg'), err.message, 'err'); }
+    btn.disabled = false;
+  });
+  el('logout').addEventListener('click', () => signOut());
+  el('search').addEventListener('input', fillPick);
+  el('pick').addEventListener('change', (e) => showRunner(e.target.value));
+  el('race-date').max = new Date().toISOString().slice(0, 10);
+  el('race-place').addEventListener('input', (e) => { if (cityIn(e.target.value) === 'Athens') el('race-auth').checked = true; });
+  document.querySelectorAll('[role="tab"]').forEach((t) => t.addEventListener('click', () => {
+    document.querySelectorAll('[role="tab"]').forEach((x) => x.setAttribute('aria-selected', String(x === t)));
+    document.querySelectorAll('[data-panel]').forEach((p) => { p.hidden = p.dataset.panel !== t.dataset.tab; });
+    clearPreview(); setMsg(el('msg'), '');
+  }));
+
+  el('race-form').addEventListener('submit', (e) => {
+    e.preventDefault();
+    check('/race', { rank: current, race: cityIn(el('race-place').value), date: el('race-date').value, time: el('race-time').value.trim(), authentic: el('race-auth').checked });
+  });
+  el('edit-form').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const f = e.target.elements, r = data.runners.find((x) => x.rank === current), fields = {};
+    for (const k of ['surname', 'name', 'gender', 'birthYear', 'pb', 'pbYear', 'authenticBest']) if (f[k].value.trim() !== r[k]) fields[k] = f[k].value.trim();
+    if (cityIn(f.pbPlace.value) !== r.pbPlace) fields.pbPlace = cityIn(f.pbPlace.value);
+    if (!Object.keys(fields).length) { setMsg(el('msg'), 'Δεν άλλαξε τίποτα.', 'err'); return; }
+    check('/runner', { rank: current, fields });
+  });
+  el('cancel').addEventListener('click', () => { clearPreview(); });
+  el('save').addEventListener('click', async () => {
+    if (!pending) return;
+    const btn = el('save'); btn.disabled = true; setMsg(el('msg'), 'Αποθήκευση…');
+    try {
+      const out = await api(pending.path, pending.payload);
+      if (pending.path === '/race') { lastAdded = pending.payload.date; el('race-form').reset(); }
+      clearPreview();
+      await reload();
+      setMsg(el('msg'), 'Αποθηκεύτηκε. Ο πίνακας ρεκόρ θα ενημερωθεί σε 1–2 λεπτά.', 'ok');
+      if (out.commit) el('msg').append(' ', Object.assign(document.createElement('a'), { href: out.commit, textContent: 'Δείτε την αλλαγή', target: '_blank', rel: 'noopener', className: 'ad-link' }));
+    } catch (e) { setMsg(el('msg'), e.message, 'err'); }
+    btn.disabled = false;
+  });
+
+  if (token) start().catch((e) => setMsg(el('login-msg'), e.message, 'err'));
+})();
+</script>
