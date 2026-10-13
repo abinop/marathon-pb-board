@@ -23,7 +23,7 @@ cd admin-api && npx wrangler@4 dev --port 8787   # admin.html on localhost talks
 ## Domain rules
 - The Athens Authentic marathon is much harder than a flat course: Authentic time minus 5:30 (the coach says 5-6 min) ≈ flat-course equivalent. `ADJUST = 330` seconds inside the `enriched` calc in src/dashboard.html.
 - With the adjustment on, each runner is ranked by min(flat PB, Authentic − 5:30). "Move" = places gained versus the raw PB ranking, overall or within gender.
-- Birth decades are coloured 1960s / 1970s / 1980s / 1990s / Unknown.
+- Runners are coloured by age group (age this year = current year − birthYear): <30, 30+, 40+, 50+, 60+, Unknown. The ranking shows it as a chip next to the name.
 
 ## Data notes
 - Cleaned from the coach's sheets: names trimmed, "Tokio" → Tokyo, Λαμπρούλης and Αναστάσης set to men (gender was blank), Καπέλης Γιάννης changed from Γ to Α. In the history, three typo dates were fixed (21/40/2024, 29/10.2023, 28/94/2024).
