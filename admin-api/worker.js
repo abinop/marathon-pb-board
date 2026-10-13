@@ -187,7 +187,7 @@ const findRunner = (runners, rank) => {
 };
 const fullName = (r) => r.surname + ' ' + r.name;
 
-function addRace(input) {
+function parseRace(input) {
   const race = checkText(input.race, 'Αγώνας');
   const date = String(input.date || ''); checkDate(date);
   const time = String(input.time || '').trim(); checkTime(time, 'Χρόνος');
@@ -199,32 +199,118 @@ function addRace(input) {
     try { new URL(note); } catch { ok = false; }
     if (!ok) throw new HttpError(400, 'Ο σύνδεσμος δεν είναι έγκυρος.');
   }
+  return { race, date, time, authentic: authentic ? 'yes' : 'no', notes: note };
+}
+
+const describe = (h) => `${h.race}, ${h.date}, ${h.time}${h.authentic === 'yes' ? ' (Αυθεντικός)' : ''}`;
+
+function findRace(history, rank, date) {
+  const i = history.rows.findIndex((h) => h.rank === rank && h.date === String(date || ''));
+  if (i < 0) throw new HttpError(404, 'Ο αγώνας δεν βρέθηκε. Ανανεώστε τη σελίδα.');
+  return i;
+}
+
+// keep each runner's races together and in date order
+function insertRace(history, row) {
+  if (!history.header.includes('notes')) history.header.push('notes');
+  const mine = history.rows.map((h, i) => [h, i]).filter(([h]) => h.rank === row.rank);
+  const after = mine.filter(([h]) => h.date <= row.date).pop() || null;
+  const at = after ? after[1] + 1 : mine.length ? mine[0][1] : history.rows.length;
+  history.rows.splice(at, 0, row);
+}
+
+// Updates pb/pbYear/pbPlace and authenticBest after a race was added (old = null),
+// changed (old -> row) or deleted (row = null). If the old race was the record,
+// the record is taken again from the runner's recorded races.
+function updateBests(r, history, old, row, notes, quiet = false) {
+  const mine = history.rows.filter((h) => h.rank === r.rank);
+  const fastest = (list) => list.reduce((a, h) => (!a || sec(h.time) < sec(a.time) ? h : a), null);
+  const wasPb = old && r.pb === old.time && r.pbPlace === old.race && r.pbYear === old.date.slice(0, 4);
+  if (wasPb) {
+    const best = fastest(mine);
+    if (best) {
+      const changed = best.time !== r.pb || best.race !== r.pbPlace || best.date.slice(0, 4) !== r.pbYear;
+      if (changed && best === row && sec(row.time) < sec(r.pb)) notes.push(`Νέο ατομικό ρεκόρ: ${r.pb} → ${row.time} (${row.race} ${row.date.slice(0, 4)}).`);
+      else if (changed) notes.push(`Το ατομικό ρεκόρ υπολογίστηκε ξανά από τους αγώνες: ${r.pb} → ${best.time} (${best.race} ${best.date.slice(0, 4)}). Ελέγξτε το στα «Στοιχεία αθλητή».`);
+      Object.assign(r, { pb: best.time, pbYear: best.date.slice(0, 4), pbPlace: best.race });
+    } else notes.push(`Ήταν ο αγώνας του ατομικού ρεκόρ και δεν μένει άλλος αγώνας: διορθώστε το ρεκόρ στα «Στοιχεία αθλητή».`);
+  } else if (row && (!r.pb || sec(row.time) < sec(r.pb))) {
+    notes.push(`Νέο ατομικό ρεκόρ: ${r.pb || '—'} → ${row.time} (${row.race} ${row.date.slice(0, 4)}).`);
+    Object.assign(r, { pb: row.time, pbYear: row.date.slice(0, 4), pbPlace: row.race });
+  } else if (r.pb && !quiet) notes.push(`Το ατομικό ρεκόρ ${r.pb} δεν αλλάζει.`);
+
+  const wasAuth = old && old.authentic === 'yes' && r.authenticBest === old.time;
+  if (wasAuth) {
+    const best = fastest(mine.filter((h) => h.authentic === 'yes'));
+    const next = best ? best.time : '';
+    if (next !== r.authenticBest) notes.push(`Το καλύτερο στον Αυθεντικό υπολογίστηκε ξανά: ${r.authenticBest} → ${next || '—'}.`);
+    r.authenticBest = next;
+  } else if (row && row.authentic === 'yes') {
+    if (!r.authenticBest || sec(row.time) < sec(r.authenticBest)) {
+      notes.push(`Νέο καλύτερο στον Αυθεντικό: ${r.authenticBest || '—'} → ${row.time}.`);
+      r.authenticBest = row.time;
+    } else notes.push(`Το καλύτερο στον Αυθεντικό ${r.authenticBest} δεν αλλάζει.`);
+  }
+}
+
+function addRace(input) {
+  const fields = parseRace(input);
   return ({ runners, history }) => {
     const r = findRunner(runners, input.rank);
-    if (history.rows.some((h) => h.rank === r.rank && h.date === date)) throw new HttpError(409, `Υπάρχει ήδη αγώνας για ${fullName(r)} στις ${date}.`);
-    if (!history.header.includes('notes')) history.header.push('notes');
-    const row = { rank: r.rank, runner: fullName(r), race, date, time, authentic: authentic ? 'yes' : 'no', notes: note };
-    // keep each runner's races together and in date order
-    const mine = history.rows.map((h, i) => [h, i]).filter(([h]) => h.rank === r.rank);
-    const after = mine.filter(([h]) => h.date <= date).pop() || null;
-    const at = after ? after[1] + 1 : mine.length ? mine[0][1] : history.rows.length;
-    history.rows.splice(at, 0, row);
-
-    const notes = [`Νέος αγώνας: ${race}, ${date}, ${time}${authentic ? ' (Αυθεντικός)' : ''}.`];
-    if (note) notes.push(`Σχόλια / σύνδεσμος: ${note}`);
-    if (!r.pb || sec(time) < sec(r.pb)) {
-      notes.push(`Νέο ατομικό ρεκόρ: ${r.pb || '—'} → ${time} (${race} ${date.slice(0, 4)}).`);
-      Object.assign(r, { pb: time, pbYear: date.slice(0, 4), pbPlace: race });
-    } else notes.push(`Το ατομικό ρεκόρ ${r.pb} δεν αλλάζει.`);
-    if (authentic) {
-      if (!r.authenticBest || sec(time) < sec(r.authenticBest)) {
-        notes.push(`Νέο καλύτερο στον Αυθεντικό: ${r.authenticBest || '—'} → ${time}.`);
-        r.authenticBest = time;
-      } else notes.push(`Το καλύτερο στον Αυθεντικό ${r.authenticBest} δεν αλλάζει.`);
-    }
+    if (history.rows.some((h) => h.rank === r.rank && h.date === fields.date)) return editRace({ ...input, originalDate: fields.date }, true)({ runners, history });
+    const row = { rank: r.rank, runner: fullName(r), ...fields };
+    insertRace(history, row);
+    const notes = [`Νέος αγώνας: ${describe(row)}.`];
+    if (row.notes) notes.push(`Σχόλια / σύνδεσμος: ${row.notes}`);
+    updateBests(r, history, null, row, notes);
     return {
       files: { [HISTORY]: toCsv(history), [RUNNERS]: toCsv(runners) },
-      message: `Νέος αγώνας: ${fullName(r)}, ${race} ${date} ${time} (admin)`,
+      message: `Νέος αγώνας: ${fullName(r)}, ${row.race} ${row.date} ${row.time} (admin)`,
+      notes,
+    };
+  };
+}
+
+const RACE_LABELS = { race: 'Αγώνας', date: 'Ημερομηνία', time: 'Χρόνος', authentic: 'Αυθεντικός', notes: 'Σχόλια / σύνδεσμος' };
+
+// replacing = called from addRace for a date that already has a race
+function editRace(input, replacing = false) {
+  const fields = parseRace(input);
+  return ({ runners, history }) => {
+    const r = findRunner(runners, input.rank);
+    const old = history.rows[findRace(history, r.rank, input.originalDate)];
+    const show = (k, v) => (k === 'authentic' ? (v === 'yes' ? 'ναι' : 'όχι') : v || '—');
+    const notes = Object.keys(RACE_LABELS).filter((k) => (old[k] || '') !== fields[k]).map((k) => `${RACE_LABELS[k]}: ${show(k, old[k])} → ${show(k, fields[k])}`);
+    if (!notes.length) throw new HttpError(400, replacing ? `Ο αγώνας ${describe(old)} υπάρχει ήδη ακριβώς ίδιος.` : 'Δεν άλλαξε τίποτα.');
+    if (replacing) notes.unshift(`Προσοχή: υπάρχει ήδη αγώνας στις ${old.date} (${describe(old)}). Θα αντικατασταθεί με τα νέα στοιχεία.`);
+    const clash = fields.date !== old.date && history.rows.find((h) => h.rank === r.rank && h.date === fields.date);
+    if (clash) {
+      notes.unshift(`Προσοχή: υπάρχει ήδη αγώνας στις ${clash.date} (${describe(clash)}). Θα αντικατασταθεί.`);
+      history.rows.splice(history.rows.indexOf(clash), 1);
+      updateBests(r, history, clash, null, notes, true);
+    }
+    history.rows.splice(history.rows.indexOf(old), 1);
+    const row = { ...old, ...fields };
+    insertRace(history, row);
+    updateBests(r, history, old, row, notes);
+    return {
+      files: { [HISTORY]: toCsv(history), [RUNNERS]: toCsv(runners) },
+      message: `${replacing ? 'Αντικατάσταση' : 'Διόρθωση'} αγώνα: ${fullName(r)}, ${old.race} ${old.date} (admin)`,
+      notes,
+    };
+  };
+}
+
+function deleteRace(input) {
+  return ({ runners, history }) => {
+    const r = findRunner(runners, input.rank);
+    const i = findRace(history, r.rank, input.date);
+    const [old] = history.rows.splice(i, 1);
+    const notes = [`Διαγραφή αγώνα: ${describe(old)}.`];
+    updateBests(r, history, old, null, notes);
+    return {
+      files: { [HISTORY]: toCsv(history), [RUNNERS]: toCsv(runners) },
+      message: `Διαγραφή αγώνα: ${fullName(r)}, ${old.race} ${old.date} ${old.time} (admin)`,
       notes,
     };
   };
@@ -276,6 +362,8 @@ async function route(request, env) {
     return { runners: runners.rows, history: history.rows };
   }
   if (request.method === 'POST' && pathname === '/race') { const b = await body(request); return mutate(env, addRace(b), b.dryRun === true); }
+  if (request.method === 'POST' && pathname === '/race/edit') { const b = await body(request); return mutate(env, editRace(b), b.dryRun === true); }
+  if (request.method === 'POST' && pathname === '/race/delete') { const b = await body(request); return mutate(env, deleteRace(b), b.dryRun === true); }
   if (request.method === 'POST' && pathname === '/runner') { const b = await body(request); return mutate(env, editRunner(b), b.dryRun === true); }
   throw new HttpError(404, 'Not found');
 }
@@ -302,4 +390,4 @@ export default {
   },
 };
 
-export { parseCsv, toCsv, addRace, editRunner }; // for test.mjs
+export { parseCsv, toCsv, addRace, editRace, deleteRace, editRunner }; // for test.mjs

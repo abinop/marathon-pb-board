@@ -32,6 +32,13 @@
 .ad-races { width: 100%; border-collapse: collapse; font-size: var(--cds-font-size-caption); font-variant-numeric: tabular-nums; }
 .ad-races th { text-align: left; color: var(--color-fg-muted); font-weight: 400; padding: 4px 6px; border-bottom: 1px solid var(--color-border-line); }
 .ad-races td { padding: 5px 6px; border-bottom: 1px solid var(--color-border-line); }
+.ad-preview li.ad-warn { color: var(--color-warn); font-weight: var(--cds-font-weight-medium); }
+.ad button.ad-danger { color: var(--color-bad); }
+.ad button.ad-primary.ad-danger { background: var(--color-bad); border-color: var(--color-bad); color: var(--color-bg); }
+.ad-races td.ad-acts { white-space: nowrap; text-align: right; }
+.ad-races td.ad-acts button { padding: 3px 8px; font-size: var(--cds-font-size-caption); }
+.ad-races .ad-editing td { background: color-mix(in srgb, var(--c1) 14%, transparent); }
+.ad-editbar { display: flex; justify-content: space-between; align-items: center; gap: var(--cds-gap-sm); font-weight: var(--cds-font-weight-medium); }
 .ad-races .ad-new td { background: color-mix(in srgb, var(--color-ok) 14%, transparent); }
 .ad-muted { color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); margin: 0; }
 [hidden] { display: none !important; }
@@ -72,6 +79,7 @@
       </div>
 
       <form class="ad-form" id="race-form" data-panel="race">
+        <div class="ad-editbar" id="race-editbar" hidden><span id="race-editlabel"></span><button type="button" id="race-editcancel">Ακύρωση διόρθωσης</button></div>
         <div class="ad-row">
           <label>Αγώνας (πόλη) <input id="race-place" list="cities" required autocomplete="off" placeholder="π.χ. Βαλένθια"></label>
           <label>Ημερομηνία <input id="race-date" type="date" required></label>
@@ -110,7 +118,7 @@
       <p class="ad-msg" id="msg" style="margin-top: var(--cds-gap-md)"></p>
 
       <h2 style="margin-top: var(--cds-gap-lg)">Αγώνες</h2>
-      <div style="overflow-x: auto"><table class="ad-races"><thead><tr><th>Ημερομηνία</th><th>Αγώνας</th><th>Χρόνος</th><th>Αυθ.</th><th>Σχόλια</th></tr></thead><tbody id="r-races"></tbody></table></div>
+      <div style="overflow-x: auto"><table class="ad-races"><thead><tr><th>Ημερομηνία</th><th>Αγώνας</th><th>Χρόνος</th><th>Αυθ.</th><th>Σχόλια</th><th></th></tr></thead><tbody id="r-races"></tbody></table></div>
       <p class="ad-muted" id="r-noraces" hidden>Δεν υπάρχουν καταγεγραμμένοι αγώνες.</p>
     </section>
   </div>
@@ -131,7 +139,7 @@
     get: () => { try { return sessionStorage.getItem('adminToken'); } catch { return null; } },
     set: (t) => { try { t ? sessionStorage.setItem('adminToken', t) : sessionStorage.removeItem('adminToken'); } catch {} },
   };
-  let token = store.get(), data = null, current = null, pending = null, lastAdded = null;
+  let token = store.get(), data = null, current = null, pending = null, lastAdded = null, editing = null;
 
   async function api(path, payload) {
     const res = await fetch(API + path, {
@@ -182,7 +190,7 @@
   function showRunner(rank) {
     const r = data.runners.find((x) => x.rank === rank);
     if (!r) { el('runner-card').hidden = true; current = null; return; }
-    if (current !== rank) { lastAdded = null; setMsg(el('msg'), ''); clearPreview(); el('race-form').reset(); }
+    if (current !== rank) { lastAdded = null; setMsg(el('msg'), ''); clearPreview(); stopEditing(); }
     current = rank;
     el('runner-card').hidden = false;
     el('r-name').textContent = r.surname + ' ' + r.name;
@@ -195,24 +203,53 @@
     el('r-noraces').hidden = races.length > 0;
     el('r-races').replaceChildren(...races.map((h) => {
       const tr = document.createElement('tr');
-      if (lastAdded && h.date === lastAdded) tr.className = 'ad-new';
+      if (editing === h.date) tr.className = 'ad-editing';
+      else if (lastAdded && h.date === lastAdded) tr.className = 'ad-new';
       for (const v of [fmtDate(h.date), cityOut(h.race), h.time, h.authentic === 'yes' ? '✓' : '']) { const td = document.createElement('td'); td.textContent = v; tr.appendChild(td); }
       const nt = document.createElement('td'); const note = h.notes || '';
       if (/^https?:\/\//i.test(note)) nt.appendChild(Object.assign(document.createElement('a'), { href: note, textContent: 'Αποτελέσματα', target: '_blank', rel: 'noopener', className: 'ad-link' }));
       else nt.textContent = note;
       tr.appendChild(nt);
+      const acts = document.createElement('td'); acts.className = 'ad-acts';
+      const fix = Object.assign(document.createElement('button'), { type: 'button', textContent: 'Διόρθωση' });
+      fix.addEventListener('click', () => startEditing(h));
+      const del = Object.assign(document.createElement('button'), { type: 'button', textContent: 'Διαγραφή', className: 'ad-danger' });
+      del.addEventListener('click', () => { stopEditing(); showTab('race'); check('/race/delete', { rank: current, date: h.date }); });
+      acts.append(fix, ' ', del); tr.appendChild(acts);
       return tr;
     }));
   }
 
   function clearPreview() { pending = null; el('preview').hidden = true; }
 
+  function showTab(name) {
+    document.querySelectorAll('[role="tab"]').forEach((x) => x.setAttribute('aria-selected', String(x.dataset.tab === name)));
+    document.querySelectorAll('[data-panel]').forEach((p) => { p.hidden = p.dataset.panel !== name; });
+  }
+
+  function startEditing(h) {
+    showTab('race'); clearPreview(); setMsg(el('msg'), '');
+    editing = h.date;
+    el('race-place').value = cityOut(h.race); el('race-date').value = h.date; el('race-time').value = h.time;
+    el('race-auth').checked = h.authentic === 'yes'; el('race-notes').value = h.notes || '';
+    el('race-editlabel').textContent = 'Διόρθωση αγώνα: ' + cityOut(h.race) + ', ' + fmtDate(h.date);
+    el('race-editbar').hidden = false;
+    showRunner(current);
+    el('race-form').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function stopEditing() {
+    editing = null; el('race-form').reset(); el('race-editbar').hidden = true;
+  }
+
   async function check(path, payload) {
     clearPreview(); setMsg(el('msg'), 'Έλεγχος…');
     try {
       const out = await api(path, { ...payload, dryRun: true });
       pending = { path, payload };
-      el('preview-list').replaceChildren(...out.notes.map((n) => Object.assign(document.createElement('li'), { textContent: Object.entries(CITY).reduce((t, [k, v]) => t.split(k).join(v), n) })));
+      el('preview-list').replaceChildren(...out.notes.map((n) => Object.assign(document.createElement('li'), { textContent: Object.entries(CITY).reduce((t, [k, v]) => t.split(k).join(v), n), className: n.startsWith('Προσοχή') ? 'ad-warn' : '' })));
+      const del = path === '/race/delete';
+      el('save').textContent = del ? 'Διαγραφή' : 'Αποθήκευση'; el('save').classList.toggle('ad-danger', del);
       el('preview').hidden = false; setMsg(el('msg'), '');
       el('save').focus();
     } catch (e) { setMsg(el('msg'), e.message, 'err'); }
@@ -233,16 +270,15 @@
   el('search').addEventListener('input', fillPick);
   el('pick').addEventListener('change', (e) => showRunner(e.target.value));
   el('race-date').max = new Date().toISOString().slice(0, 10);
+  el('race-editcancel').addEventListener('click', () => { stopEditing(); clearPreview(); setMsg(el('msg'), ''); showRunner(current); });
   el('race-place').addEventListener('input', (e) => { if (cityIn(e.target.value) === 'Athens') el('race-auth').checked = true; });
   document.querySelectorAll('[role="tab"]').forEach((t) => t.addEventListener('click', () => {
-    document.querySelectorAll('[role="tab"]').forEach((x) => x.setAttribute('aria-selected', String(x === t)));
-    document.querySelectorAll('[data-panel]').forEach((p) => { p.hidden = p.dataset.panel !== t.dataset.tab; });
-    clearPreview(); setMsg(el('msg'), '');
+    showTab(t.dataset.tab); stopEditing(); clearPreview(); setMsg(el('msg'), ''); if (current) showRunner(current);
   }));
 
   el('race-form').addEventListener('submit', (e) => {
     e.preventDefault();
-    check('/race', { rank: current, race: cityIn(el('race-place').value), date: el('race-date').value, time: el('race-time').value.trim(), authentic: el('race-auth').checked, notes: el('race-notes').value.trim() });
+    check(editing ? '/race/edit' : '/race', { rank: current, ...(editing ? { originalDate: editing } : {}), race: cityIn(el('race-place').value), date: el('race-date').value, time: el('race-time').value.trim(), authentic: el('race-auth').checked, notes: el('race-notes').value.trim() });
   });
   el('edit-form').addEventListener('submit', (e) => {
     e.preventDefault();
@@ -258,7 +294,8 @@
     const btn = el('save'); btn.disabled = true; setMsg(el('msg'), 'Αποθήκευση…');
     try {
       const out = await api(pending.path, pending.payload);
-      if (pending.path === '/race') { lastAdded = pending.payload.date; el('race-form').reset(); }
+      lastAdded = pending.path === '/race' || pending.path === '/race/edit' ? pending.payload.date : null;
+      if (pending.path.startsWith('/race')) stopEditing();
       clearPreview();
       await reload();
       setMsg(el('msg'), 'Αποθηκεύτηκε. Ο πίνακας ρεκόρ θα ενημερωθεί σε 1–2 λεπτά.', 'ok');
