@@ -32,7 +32,7 @@
 .rb-table tr.rb-open td { background: color-mix(in srgb, var(--c1) 10%, transparent); }
 .rb-expand { font: inherit; border: 0; background: none; color: var(--color-fg-muted); cursor: pointer; padding: 0 2px; width: 1.2em; transition: transform var(--cds-dur-slow); }
 .rb-expand[aria-expanded="true"] { transform: rotate(90deg); color: var(--color-fg); }
-.rb-table tr.rb-detail td { padding: 0; background: var(--color-bg); white-space: normal; }
+.rb-table tr.rb-detail > td { padding: 0; background: var(--color-bg); white-space: normal; }
 .rb-table tr.rb-detail .rb-detailbox { position: sticky; left: 0; padding: var(--cds-pad-md) var(--cds-pad-md) var(--cds-pad-lg); }
 .rb-chip { display: inline-flex; align-items: center; gap: 4px; border: 1px solid var(--color-border-line); border-radius: 999px; padding: 0 7px 0 5px; font-size: 11px; line-height: 17px; color: var(--color-fg); font-variant-numeric: tabular-nums; white-space: nowrap; }
 .rb-chip .rb-dot { width: 7px; height: 7px; }
@@ -45,8 +45,6 @@
 .rb-table td { padding: var(--cds-pad-xs) var(--cds-pad-sm); border-bottom: 1px solid var(--color-border-line); white-space: nowrap; }
 .rb-table td.rb-num, .rb-table th.rb-num { text-align: right; }
 .rb-table td.rb-runner { display: flex; align-items: center; gap: 8px; }
-.rb .rb-up { color: var(--color-ok); font-weight: var(--cds-font-weight-medium); }
-.rb .rb-down { color: var(--color-fg-muted); }
 .rb .rb-strong { font-weight: var(--cds-font-weight-medium); color: var(--color-fg); }
 .rb-bars { display: flex; flex-direction: column; gap: var(--cds-gap-sm); min-height: 180px; }
 .rb-barrow { display: grid; grid-template-columns: 4.5rem 1fr; gap: var(--cds-gap-sm); align-items: center; font-size: var(--cds-font-size-caption); }
@@ -99,7 +97,7 @@
 
   <section class="rb-card" id="ranking">
     <h2>Η κατάταξη</h2>
-    <p class="rb-note" id="ranking-note">Με τη διόρθωση του Αυθεντικού ενεργή, ο χρόνος του Αυθεντικού μετράει μείον 5:30 και η «Μεταβολή» δείχνει πόσες θέσεις κερδίζει ο δρομέας. Η στήλη «&lt;3ω» μετράει τους αγώνες κάτω από 3 ώρες. Πατήστε έναν δρομέα για την εξέλιξη των χρόνων του.</p>
+    <p class="rb-note" id="ranking-note">Με τη διόρθωση του Αυθεντικού ενεργή, ο χρόνος του Αυθεντικού μετράει μείον 5:30 (στήλη «≈ Επίπεδος») και η κατάταξη γίνεται με τον καλύτερο από τους δύο. Η στήλη «&lt;3ω» μετράει τους αγώνες κάτω από 3 ώρες. Πατήστε έναν δρομέα για την εξέλιξη των χρόνων του.</p>
     <div class="rb-tablebar">
       <div class="rb-legend" id="table-legend" data-source="enriched"></div>
       <input class="rb-search" id="rb-search" type="search" placeholder="Αναζήτηση δρομέα ή πόλης" aria-label="Αναζήτηση δρομέων">
@@ -116,7 +114,6 @@
           <th class="rb-num rb-opt" data-field="pbYear">Έτος</th>
           <th class="rb-num" data-field="authenticBest">Αυθεντικός</th>
           <th class="rb-num" id="th-equiv" data-field="authEquiv">≈ Επίπεδος</th>
-          <th class="rb-num" id="th-move" data-field="moveAll">Μεταβολή</th>
         </tr></thead>
         <tbody id="rank-body"></tbody>
       </table>
@@ -194,7 +191,8 @@ const RunnerDetail = (() => {
     const recorded = (t, onlyAuth) => mine.some((h) => (!onlyAuth || h.authentic) && Math.abs(h.s - sec(t)) <= 5);
     const extra = [];
     if (runner.pb && !recorded(runner.pb)) {
-      extra.push({ date: runner.pbYear ? new Date(Date.UTC(Number(runner.pbYear), 6, 1)) : null, race: runner.pbPlace, time: runner.pb, s: sec(runner.pb),
+      // year only: mid-year, except Athens, which is always run in November
+      extra.push({ date: runner.pbYear ? new Date(Date.UTC(Number(runner.pbYear), runner.pbPlace === 'Athens' ? 10 : 6, runner.pbPlace === 'Athens' ? 10 : 1)) : null, race: runner.pbPlace, time: runner.pb, s: sec(runner.pb),
         authentic: runner.pb === runner.authenticBest, notes: '', yearOnly: true });
     }
     if (runner.authenticBest && runner.authenticBest !== runner.pb && !recorded(runner.authenticBest, true)) {
@@ -226,9 +224,9 @@ const RunnerDetail = (() => {
 .rd-key span { display: inline-flex; align-items: center; gap: 5px; }
 .rd-note { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); margin: 0; white-space: normal; }
 .rd-list { width: auto; min-width: min(100%, 34rem); border-collapse: collapse; font-size: var(--cds-font-size-caption); font-variant-numeric: tabular-nums; }
-.rd-list td { padding: 4px 14px 4px 0; border-bottom: 1px solid var(--color-border-line); white-space: nowrap; vertical-align: top; }
-.rd-list td:last-child { white-space: normal; color: var(--color-fg-muted); padding-right: 0; }
-.rd-list td.rd-t { text-align: right; }
+.rd .rd-list td { padding: 4px 14px 4px 0; border-bottom: 1px solid var(--color-border-line); white-space: nowrap; vertical-align: top; }
+.rd .rd-list td:last-child { white-space: normal; color: var(--color-fg-muted); padding-right: 0; }
+.rd .rd-list td.rd-t { text-align: right; }
 .rd-list a { color: var(--color-fg-muted); }
 .rd-sub3 { color: var(--c1); font-weight: var(--cds-font-weight-medium); }`;
   let styled = false;
@@ -498,10 +496,7 @@ dash.calc('byPbYear', {
     if (d.status !== 'ok') return;
     const { g, adj } = state();
     const posField = adj ? (g === 'all' ? 'rankAdj' : 'rankAdjG') : (g === 'all' ? 'rankRaw' : 'rankRawG');
-    const moveField = g === 'all' ? 'moveAll' : 'moveG';
     el('th-pos').dataset.field = posField;
-    el('th-move').dataset.field = moveField;
-    el('th-move').hidden = !adj;
     el('th-equiv').textContent = '≈ Επίπεδος';
     const q = el('rb-search').value.trim().toLowerCase();
     const rows = shown(d.data).filter((r) => !q || (r.runner + ' ' + r.pbPlace).toLowerCase().includes(q)).sort((a, b) => a[posField] - b[posField]);
@@ -533,7 +528,6 @@ dash.calc('byPbYear', {
       td(r.pbYear, 'rb-num rb-opt');
       td(r.authenticBest, 'rb-num');
       td(r.authEquiv, 'rb-num' + (adj && r.improved ? ' rb-strong' : ''));
-      if (adj) { const m = r[moveField]; td(m, 'rb-num ' + (m.startsWith('+') ? 'rb-up' : 'rb-down')); }
       body.appendChild(tr);
       if (isOpen && raw.status === 'ok' && hist.status === 'ok') {
         const dtr = document.createElement('tr'); dtr.className = 'rb-detail';
