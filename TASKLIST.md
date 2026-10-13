@@ -12,10 +12,11 @@
 
 ## For next session
 1. **Alexandros:** send the coach the Greek message (birth years, Καπέλης gender, logo permission, privacy, HM PB list).
-2. **Alexandros:** confirm the GitHub token pasted in chat was regenerated; if not, regenerate it and run `cd admin-api && pbpaste | npx -y wrangler@4 secret put GITHUB_TOKEN` (5 min).
-3. **Alexandros:** decide whether to add Πετράκης Γιάννης's Garmin races (Hannover 12/4/26 2:59:45 = new PB, Athens 9/11/25 3:13:05).
-4. **Claude, after 1 is answered:** half-marathon support. Needs the HM PB source and the threshold (sub-1:30 or ~1:25). Plan: 5–7 h, show the plan before starting.
-5. Not built: adding a new athlete via admin.
+2. **Alexandros:** decide whether to add Πετράκης Γιάννης's Garmin races (Hannover 12/4/26 2:59:45 = new PB, Athens 9/11/25 3:13:05).
+3. **After 1 is answered:** half-marathon support. Needs the HM PB source and the threshold (sub-1:30 or ~1:25). Plan: 5–7 h, show the plan before starting.
+4. Not built: adding a new athlete via admin.
+
+Operational and secret-rotation notes are kept outside this public repo.
 
 ## Lessons
 - The safety hook reads `gh api -f` as a force push; use `--field`.
