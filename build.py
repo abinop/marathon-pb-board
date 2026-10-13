@@ -42,6 +42,9 @@ body { margin: 0; background: var(--color-bg); color: var(--color-fg); font-fami
 #dash-root { max-width: 1200px; margin: 0 auto; padding: 28px clamp(16px, 4vw, 40px) 48px; }
 .dash-skeleton:empty { display: block; min-height: 1em; background: var(--color-border-line); border-radius: 6px; }
 .rb-footer { margin-top: 32px; font-size: 12px; color: var(--color-fg-muted); }
+.rb-adminlink { display: flex; justify-content: flex-end; margin-bottom: 4px; }
+.rb-adminlink a { font-size: 12.5px; color: var(--color-fg-muted); text-decoration: none; border: 1px solid var(--color-border-line); border-radius: 999px; padding: 3px 10px; }
+.rb-adminlink a:hover { color: var(--color-fg); border-color: var(--color-fg-muted); }
 </style>
 '''
 DASH_HEAD = '''<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
@@ -83,7 +86,8 @@ def write(name, title, extra_head, body):
     (ROOT / name).write_text(html, encoding='utf-8')
     print('Wrote', ROOT / name)
 
-write('index.html', 'Ατομικά ρεκόρ μαραθωνίου 2026', DASH_HEAD, page + FOOTER)
+ADMIN_LINK = '<div class="rb-adminlink"><a href="admin.html" target="_blank" rel="noopener">Διαχείριση ↗</a></div>\n'
+write('index.html', 'Ατομικά ρεκόρ μαραθωνίου 2026', DASH_HEAD, ADMIN_LINK + page + FOOTER)
 
 # The admin page shares the dashboard's city names (Greek display <-> English key in the CSVs).
 city = re.search(r'const CITY = (\{.*?\n\});', page, re.S).group(1)
