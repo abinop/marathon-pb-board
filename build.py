@@ -21,7 +21,7 @@ head = '''<!doctype html>
   --font-anthropic-sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --font-anthropic-serif: Georgia, "Times New Roman", serif;
   --color-fg: #1f1e1c; --color-fg-muted: #6b6862; --color-bg: #faf9f6; --color-panel: #ffffff;
-  --color-border-line: #e4e1da; --color-ok: #2f7d4f; --color-warn: #a86a12; --color-bad: #c2412d;
+  --color-border-line: #e4e1da; --color-ok: #2f7d4f; --color-warn: #a86a12; --color-bad: #c2412d; --color-women: #b83280;
   --cds-chart-grid: #ece9e2; --cds-chart-axis: #c9c5bc; --cds-chart-muted: #c4c0b7; --cds-chart-reference: #9c978d;
   --cds-surface-popover: #ffffff; --cds-border: #e4e1da; --cds-shadow-popover: 0 4px 16px rgba(0,0,0,.12); --cds-text-secondary: #6b6862;
   --c1: #3266ad; --c2: #d97a2b; --c3: #2f9e7a; --c4: #9b4fb3;
@@ -33,7 +33,7 @@ head = '''<!doctype html>
 }
 @media (prefers-color-scheme: dark) { :root {
   --color-fg: #ecebe7; --color-fg-muted: #a19d95; --color-bg: #1c1b19; --color-panel: #252421;
-  --color-border-line: #3a3833; --color-ok: #6cc28f; --color-warn: #e8b05c; --color-bad: #ee7a66;
+  --color-border-line: #3a3833; --color-ok: #6cc28f; --color-warn: #e8b05c; --color-bad: #ee7a66; --color-women: #f08cc0;
   --cds-chart-grid: #33312d; --cds-chart-axis: #55524b; --cds-chart-muted: #5d5a53;
   --cds-surface-popover: #2c2b27; --cds-border: #44413b; --cds-shadow-popover: 0 4px 16px rgba(0,0,0,.5); --cds-text-secondary: #a19d95;
   --c1: #6b9be0; --c2: #f0a160; --c3: #5cc8a3; --c4: #c587d8;

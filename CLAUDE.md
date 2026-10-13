@@ -24,6 +24,7 @@ cd admin-api && npx wrangler@4 dev --port 8787   # admin.html on localhost talks
 ## Domain rules
 - The Athens Authentic marathon is much harder than a flat course: Authentic time minus 5:30 (the coach says 5-6 min) ≈ flat-course equivalent. `ADJUST = 330` seconds inside the `enriched` calc in src/dashboard.html.
 - With the adjustment on, each runner is ranked by min(flat PB, Authentic − 5:30). "Move" = places gained versus the raw PB ranking, overall or within gender.
+- Women (15 of 87) are marked in the ranking with a rose accent on the row (`--color-women`) and a «Γ · Nη» tag giving their place among women (just «Γ» when the Women filter is on).
 - Runners are coloured by age group (age this year = current year − birthYear): <30, 30+, 40+, 50+, 60+, Unknown. The ranking shows it as a chip next to the name.
 
 ## Data notes

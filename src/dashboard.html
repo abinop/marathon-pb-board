@@ -37,6 +37,9 @@
 .rb-table tr.rb-detail .rb-detailbox { position: sticky; left: 0; padding: var(--cds-pad-md) var(--cds-pad-md) var(--cds-pad-lg); }
 .rb-chip { display: inline-flex; align-items: center; gap: 4px; border: 1px solid var(--color-border-line); border-radius: 999px; padding: 0 7px 0 5px; font-size: 11px; line-height: 17px; color: var(--color-fg); font-variant-numeric: tabular-nums; white-space: nowrap; }
 .rb-chip .rb-dot { width: 7px; height: 7px; }
+.rb-table tr.rb-woman td:first-child { box-shadow: inset 3px 0 0 var(--color-women, #b83280); }
+.rb-wtag { font-size: 11px; font-weight: var(--cds-font-weight-medium); color: var(--color-women, #b83280); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.rb-legend .rb-wkey { display: inline-block; width: 3px; height: 12px; border-radius: 2px; background: var(--color-women, #b83280); margin-right: 6px; vertical-align: -1px; }
 .rb .rb-sub3c { color: var(--c1); font-weight: var(--cds-font-weight-medium); }
 .rb-table { width: 100%; border-collapse: collapse; font-size: var(--cds-font-size-caption); font-variant-numeric: tabular-nums; }
 .rb-table th { position: sticky; top: 0; background: var(--color-panel); text-align: left; font-weight: var(--cds-font-weight-medium); color: var(--color-fg-muted); padding: var(--cds-pad-xs) var(--cds-pad-sm); border-bottom: 1px solid var(--color-border-line); white-space: nowrap; z-index: 1; }
@@ -484,6 +487,10 @@ dash.calc('byPbYear', {
         const s = document.createElement('span'); const dot = document.createElement('i'); dot.className = 'rb-dot'; dot.style.background = groupColor(g);
         s.append(dot, g === 'Unknown' ? 'Άγνωστο έτος γέννησης' : g === '<30' ? 'Κάτω από 30' : g + ' ετών'); box.appendChild(s);
       }
+      if (id === 'table-legend') {
+        const s = document.createElement('span'); const k = document.createElement('i'); k.className = 'rb-wkey';
+        s.append(k, 'Γυναίκες (Γ · θέση στις γυναίκες)'); box.appendChild(s);
+      }
     }
   }
 
@@ -516,14 +523,23 @@ dash.calc('byPbYear', {
     for (const r of rows) {
       const tr = document.createElement('tr'); tr.dataset.key = r.rank;
       const isOpen = openRows.has(r.rank);
-      tr.className = 'rb-row' + (adj && r.improved ? ' rb-moved' : '') + (isOpen ? ' rb-open' : '');
+      tr.className = 'rb-row' + (r.gender === 'Women' ? ' rb-woman' : '') + (adj && r.improved ? ' rb-moved' : '') + (isOpen ? ' rb-open' : '');
       tr.addEventListener('click', (e) => { if (!e.target.closest('a')) toggleRow(r.rank); });
       const td = (text, cls) => { const c = document.createElement('td'); if (cls) c.className = cls; c.textContent = text; tr.appendChild(c); return c; };
       td(String(r[posField]), 'rb-num');
       const name = document.createElement('td'); name.className = 'rb-runner';
       const chev = document.createElement('button'); chev.type = 'button'; chev.className = 'rb-expand'; chev.textContent = '›';
       chev.setAttribute('aria-expanded', String(isOpen)); chev.setAttribute('aria-label', (isOpen ? 'Κλείσιμο' : 'Εξέλιξη χρόνων') + ': ' + r.runner);
-      name.append(chev, r.runner, chip(r.ageGroup)); tr.appendChild(name);
+      name.append(chev, r.runner, chip(r.ageGroup));
+      if (r.gender === 'Women') {
+        // women are a small part of the list: mark them, and show their place among women in the mixed view
+        const tag = document.createElement('span'); tag.className = 'rb-wtag';
+        const wPos = r[adj ? 'rankAdjG' : 'rankRawG'];
+        tag.textContent = g === 'all' ? 'Γ · ' + wPos + 'η' : 'Γ';
+        tag.title = g === 'all' ? wPos + 'η θέση στις γυναίκες' : 'Γυναίκα';
+        name.appendChild(tag);
+      }
+      tr.appendChild(name);
       td(r.birthYear, 'rb-num rb-opt');
       td(r.pb, 'rb-num' + (adj && r.improved ? '' : ' rb-strong'));
       td(r.sub3Races ? String(r.sub3Races) : '', 'rb-num rb-sub3c');
