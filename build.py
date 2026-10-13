@@ -1,0 +1,85 @@
+#!/usr/bin/env python3
+"""Builds index.html from src/dashboard.html and the CSV files in data/.
+Run: python3 build.py"""
+import csv, json, pathlib
+ROOT = pathlib.Path(__file__).resolve().parent
+read = lambda name: list(csv.DictReader(open(ROOT / 'data' / name, encoding='utf-8')))
+page = (ROOT / 'src' / 'dashboard.html').read_text(encoding='utf-8')
+runners = read('runners.csv')
+history = read('race-history.csv')
+data = json.dumps({'runners': runners, 'history': history}, ensure_ascii=False).replace('</', '<\\/')
+head = '''<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Marathon PB Board 2026</title>
+<style>
+:root {
+  --font-anthropic-sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-anthropic-serif: Georgia, "Times New Roman", serif;
+  --color-fg: #1f1e1c; --color-fg-muted: #6b6862; --color-bg: #faf9f6; --color-panel: #ffffff;
+  --color-border-line: #e4e1da; --color-ok: #2f7d4f; --color-warn: #a86a12; --color-bad: #c2412d;
+  --cds-chart-grid: #ece9e2; --cds-chart-axis: #c9c5bc; --cds-chart-muted: #c4c0b7; --cds-chart-reference: #9c978d;
+  --cds-surface-popover: #ffffff; --cds-border: #e4e1da; --cds-shadow-popover: 0 4px 16px rgba(0,0,0,.12); --cds-text-secondary: #6b6862;
+  --c1: #3266ad; --c2: #d97a2b; --c3: #2f9e7a; --c4: #9b4fb3;
+  --cds-font-size-caption: 12.5px; --cds-font-size-body: 15px; --cds-font-size-heading: 16px; --cds-font-size-title: 30px;
+  --cds-font-weight-medium: 600;
+  --cds-gap-xs: 4px; --cds-gap-sm: 8px; --cds-gap-md: 14px; --cds-gap-lg: 22px;
+  --cds-pad-xs: 5px; --cds-pad-sm: 8px; --cds-pad-md: 12px; --cds-pad-lg: 18px;
+  --cds-radius: 10px; --cds-dur-slow: .3s;
+}
+@media (prefers-color-scheme: dark) { :root {
+  --color-fg: #ecebe7; --color-fg-muted: #a19d95; --color-bg: #1c1b19; --color-panel: #252421;
+  --color-border-line: #3a3833; --color-ok: #6cc28f; --color-bad: #ee7a66;
+  --cds-chart-grid: #33312d; --cds-chart-axis: #55524b; --cds-chart-muted: #5d5a53;
+  --cds-surface-popover: #2c2b27; --cds-border: #44413b; --cds-shadow-popover: 0 4px 16px rgba(0,0,0,.5); --cds-text-secondary: #a19d95;
+  --c1: #6b9be0; --c2: #f0a160; --c3: #5cc8a3; --c4: #c587d8;
+} }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--color-bg); color: var(--color-fg); font-family: var(--font-anthropic-sans); }
+#dash-root { max-width: 1200px; margin: 0 auto; padding: 28px clamp(16px, 4vw, 40px) 48px; }
+.dash-skeleton:empty { display: block; min-height: 1em; background: var(--color-border-line); border-radius: 6px; }
+.rb-footer { margin-top: 32px; font-size: 12px; color: var(--color-fg-muted); }
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<script>
+window.dash = (() => {
+  const raw = __DATA__;
+  const calcs = {}, cache = {}, fns = [];
+  const defaults = { gender: 'all', adjust: true };
+  let params = { ...defaults };
+  const get = (id) => {
+    if (id in cache) return cache[id];
+    if (id in raw) return (cache[id] = raw[id]);
+    const c = calcs[id];
+    if (!c) throw new Error('Unknown source ' + id);
+    return (cache[id] = c.fn(...c.inputs.map(get)));
+  };
+  const run = () => fns.forEach((fn) => { try { fn(); } catch (e) { console.error(e); } });
+  let t; window.addEventListener('resize', () => { clearTimeout(t); t = setTimeout(run, 120); });
+  return {
+    colors: ['var(--c1)', 'var(--c2)', 'var(--c3)', 'var(--c4)', 'var(--c1)', 'var(--c2)', 'var(--c3)', 'var(--c4)'],
+    calc: (id, o) => { calcs[id] = o; },
+    loader: () => {},
+    data: (id) => { try { const d = get(id); return { status: 'ok', data: d, columns: Array.isArray(d) && d[0] ? Object.keys(d[0]) : [], meta: [] }; } catch (e) { console.error(e); return { status: 'error', data: [] }; } },
+    onData: (fn) => { fns.push(fn); try { fn(); } catch (e) { console.error(e); } },
+    params: () => ({ ...params }),
+    setParams: (p) => { params = { ...params, ...p }; run(); },
+    resetParams: () => { params = { ...defaults }; run(); },
+    setLink: () => {}, refresh: () => {},
+  };
+})();
+</script>
+</head>
+<body>
+<div id="dash-root">
+'''.replace('__DATA__', data)
+tail = '''
+<p class="rb-footer">Authentic times are converted to a flat-course equivalent by subtracting 5:30. Data: the coach’s 2026 PB list and the earlier race-history sheet.</p>
+</div>
+</body>
+</html>
+'''
+(ROOT / 'index.html').write_text(head + page + tail, encoding='utf-8')
+print('Wrote', ROOT / 'index.html')

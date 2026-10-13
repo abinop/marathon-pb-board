@@ -1,0 +1,561 @@
+<style>
+.rb { display: flex; flex-direction: column; gap: var(--cds-gap-lg); font-family: var(--font-anthropic-sans); }
+.rb-title { font-family: var(--font-anthropic-serif); font-weight: 400; font-size: var(--cds-font-size-title); margin: 0; }
+.rb-take { margin: var(--cds-gap-xs) 0 0; color: var(--color-fg-muted); font-size: var(--cds-font-size-body); max-width: 60rem; }
+.rb-take .rb-em { color: var(--color-fg); font-variant-numeric: tabular-nums; }
+.rb-controls { display: flex; flex-wrap: wrap; gap: var(--cds-gap-md); align-items: center; }
+.rb-seg { display: inline-flex; border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); overflow: hidden; }
+.rb-seg button { font: inherit; font-size: var(--cds-font-size-caption); padding: var(--cds-pad-xs) var(--cds-pad-md); background: transparent; color: var(--color-fg-muted); border: 0; cursor: pointer; }
+.rb-seg button + button { border-left: 1px solid var(--color-border-line); }
+.rb-seg button[aria-pressed="true"] { background: var(--color-panel); color: var(--color-fg); font-weight: var(--cds-font-weight-medium); }
+.rb-toggle { display: inline-flex; gap: var(--cds-gap-xs); align-items: center; font-size: var(--cds-font-size-caption); color: var(--color-fg); cursor: pointer; }
+.rb-kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 11rem), 1fr)); gap: var(--cds-gap-md); }
+.rb-kpi { background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-md) var(--cds-pad-lg); }
+.rb-kpi-label { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+.rb .rb-kpi-num { display: block; font-family: var(--font-anthropic-serif); font-weight: 400; font-size: var(--cds-font-size-title); font-variant-numeric: tabular-nums; min-height: 1.2em; }
+.rb-kpi-sub { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+.rb-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 24rem), 1fr)); gap: var(--cds-gap-md); }
+.rb-card { background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-lg); min-width: 0; }
+.rb-card h2 { font-size: var(--cds-font-size-heading); font-weight: var(--cds-font-weight-medium); margin: 0; }
+.rb-note { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); margin: var(--cds-gap-xs) 0 var(--cds-gap-md); }
+.rb-chart { position: relative; min-height: 220px; }
+.rb-legend { display: flex; flex-wrap: wrap; gap: var(--cds-gap-sm) var(--cds-gap-md); font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); margin-bottom: var(--cds-gap-sm); }
+.rb-legend span { display: inline-flex; align-items: center; gap: 6px; }
+.rb-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; flex: none; }
+.rb-ring { display: inline-block; width: 10px; height: 10px; border-radius: 50%; border: 2px solid var(--color-fg-muted); box-sizing: border-box; }
+.rb-tip { position: absolute; pointer-events: none; background: var(--cds-surface-popover); border: 1px solid var(--cds-border); border-radius: var(--cds-radius); box-shadow: var(--cds-shadow-popover); padding: var(--cds-pad-xs) var(--cds-pad-sm); font-size: var(--cds-font-size-caption); white-space: nowrap; z-index: 2; display: none; }
+.rb-tip .rb-tip-h { color: var(--cds-text-secondary); }
+.rb-tablebar { display: flex; flex-wrap: wrap; gap: var(--cds-gap-md); align-items: center; justify-content: space-between; margin-bottom: var(--cds-gap-sm); }
+.rb-search { font: inherit; font-size: var(--cds-font-size-caption); padding: var(--cds-pad-xs) var(--cds-pad-sm); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); background: var(--color-bg); color: var(--color-fg); min-width: 12rem; }
+.rb-tablewrap { max-height: 560px; overflow: auto; }
+.rb-table { width: 100%; border-collapse: collapse; font-size: var(--cds-font-size-caption); font-variant-numeric: tabular-nums; }
+.rb-table th { position: sticky; top: 0; background: var(--color-panel); text-align: left; font-weight: var(--cds-font-weight-medium); color: var(--color-fg-muted); padding: var(--cds-pad-xs) var(--cds-pad-sm); border-bottom: 1px solid var(--color-border-line); white-space: nowrap; z-index: 1; }
+.rb-table td { padding: var(--cds-pad-xs) var(--cds-pad-sm); border-bottom: 1px solid var(--color-border-line); white-space: nowrap; }
+.rb-table td.rb-num, .rb-table th.rb-num { text-align: right; }
+.rb-table td.rb-runner { display: flex; align-items: center; gap: 8px; }
+.rb-table tr.rb-moved td { background: color-mix(in srgb, var(--color-ok) 7%, transparent); }
+.rb .rb-up { color: var(--color-ok); font-weight: var(--cds-font-weight-medium); }
+.rb .rb-down { color: var(--color-fg-muted); }
+.rb .rb-strong { font-weight: var(--cds-font-weight-medium); color: var(--color-fg); }
+.rb-bars { display: flex; flex-direction: column; gap: var(--cds-gap-sm); min-height: 180px; }
+.rb-barrow { display: grid; grid-template-columns: 4.5rem 1fr; gap: var(--cds-gap-sm); align-items: center; font-size: var(--cds-font-size-caption); }
+.rb-bartrack { display: flex; height: 18px; }
+.rb-barseg { height: 100%; }
+.rb-barseg:first-child { border-radius: 4px 0 0 4px; }
+.rb-barseg:last-child { border-radius: 0 4px 4px 0; }
+.rb-barseg:only-child { border-radius: 4px; }
+.rb-barmeta { grid-column: 2; color: var(--color-fg-muted); margin-top: -2px; }
+[data-dash-source-state=empty] { color: transparent; }
+[data-dash-source-state=refreshing] { opacity: .5; transition: opacity var(--cds-dur-slow); }
+.rb-failed { display: flex; align-items: center; justify-content: center; gap: 8px; min-height: inherit; color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); }
+.rb-failed::before { content: ""; width: .375rem; height: .375rem; border-radius: 50%; background: var(--color-bad); }
+.rb-multiples { position: relative; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 15rem), 1fr)); gap: var(--cds-gap-md); min-height: 140px; }
+.rb-mini { min-width: 0; }
+.rb-mini-h { font-size: var(--cds-font-size-caption); display: flex; justify-content: space-between; gap: 8px; }
+.rb-mini-h span { color: var(--color-fg-muted); }
+@media (max-width: 640px) { .rb-opt { display: none; } }
+</style>
+
+<div class="rb">
+  <header id="header">
+    <h1 class="rb-title" id="title">Marathon PB board 2026</h1>
+    <p class="rb-take dash-skeleton" id="takeaway"></p>
+  </header>
+
+  <div class="rb-controls" id="controls">
+    <div class="rb-seg" role="group" aria-label="Who to show">
+      <button type="button" data-g="all">Everyone</button>
+      <button type="button" data-g="Men">Men</button>
+      <button type="button" data-g="Women">Women</button>
+    </div>
+    <label class="rb-toggle"><input type="checkbox" id="rb-adj"> Count the Authentic as a flat marathon (5:30 faster)</label>
+  </div>
+
+  <section class="rb-kpis" id="kpis">
+    <div class="rb-kpi"><div class="rb-kpi-label">Runners on the list</div>
+      <b class="rb-kpi-num dash-skeleton" data-source="summary" data-row="0" data-field="runners">—</b>
+      <div class="rb-kpi-sub"><span data-source="summary" data-row="0" data-field="men">—</span> men · <span data-source="summary" data-row="0" data-field="women">—</span> women</div></div>
+    <div class="rb-kpi"><div class="rb-kpi-label">Have run the Authentic</div>
+      <b class="rb-kpi-num dash-skeleton" data-source="summary" data-row="0" data-field="authentic">—</b>
+      <div class="rb-kpi-sub"><span data-source="summary" data-row="0" data-field="movedUp">—</span> of them improve once it is adjusted</div></div>
+    <div class="rb-kpi"><div class="rb-kpi-label">Under 3 hours</div>
+      <b class="rb-kpi-num dash-skeleton" id="kpi-sub3" data-source="summary" data-row="0" data-field="sub3Adj">—</b>
+      <div class="rb-kpi-sub" id="kpi-sub3-note">flat-equivalent best</div></div>
+    <div class="rb-kpi"><div class="rb-kpi-label">Missing birth year</div>
+      <b class="rb-kpi-num dash-skeleton" data-source="summary" data-row="0" data-field="missingBirthYear">—</b>
+      <div class="rb-kpi-sub">left out of the age chart</div></div>
+  </section>
+
+  <section class="rb-card" id="ranking">
+    <h2>The ranking</h2>
+    <p class="rb-note" id="ranking-note">Highlighted rows are runners whose Authentic time, adjusted, beats their flat PB. “Move” is the change in position that causes.</p>
+    <div class="rb-tablebar">
+      <div class="rb-legend" id="table-legend" data-source="enriched"></div>
+      <input class="rb-search" id="rb-search" type="search" placeholder="Search runner or city" aria-label="Search runners">
+    </div>
+    <div class="rb-tablewrap">
+      <table class="rb-table" id="rank-table" data-source="enriched" data-row-key="rank">
+        <thead><tr>
+          <th id="th-pos" class="rb-num" data-field="rankAdj">Pos</th>
+          <th data-field="runner">Runner</th>
+          <th class="rb-num rb-opt" data-field="birthYear">Born</th>
+          <th class="rb-num" data-field="pb">PB</th>
+          <th class="rb-opt" data-field="pbPlace">Where</th>
+          <th class="rb-num rb-opt" data-field="pbYear">Year</th>
+          <th class="rb-num" data-field="authenticBest">Authentic</th>
+          <th class="rb-num" id="th-equiv" data-field="authEquiv">≈ Flat</th>
+          <th class="rb-num" id="th-move" data-field="moveAll">Move</th>
+        </tr></thead>
+        <tbody id="rank-body"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="rb-card" id="spread">
+    <h2>Where everyone sits</h2>
+    <p class="rb-note" id="spread-note">Every runner on one time axis, coloured by birth decade. A grey tail shows how far the Authentic adjustment moved them.</p>
+    <div class="rb-legend" id="decade-legend" data-source="enriched"></div>
+    <div class="rb-chart" id="c-strip" data-source="enriched" style="min-height: 120px"></div>
+  </section>
+
+  <section class="rb-card" id="history">
+    <h2>Race by race</h2>
+    <p class="rb-note" id="history-note">Every marathon recorded for runners from the coach’s earlier sheet (up to spring 2024), on one shared scale. Rings are Athens Authentic races; with the adjustment on, a short tail shows their flat equivalent.</p>
+    <div class="rb-multiples" id="c-history" data-source="history"></div>
+  </section>
+
+  <div class="rb-grid">
+    <section class="rb-card" id="age">
+      <h2>Age when the PB was set</h2>
+      <p class="rb-note">Filled dots are men, rings are women. Runners without a birth year aren’t shown.</p>
+      <div class="rb-chart" id="c-age" data-source="enriched"></div>
+    </section>
+    <section class="rb-card" id="decades">
+      <h2>By birth decade</h2>
+      <p class="rb-note">Runners per decade (solid men, light women) and each decade’s fastest.</p>
+      <div class="rb-bars" id="c-decade" data-source="byDecade"></div>
+    </section>
+    <section class="rb-card" id="years">
+      <h2>When the PBs were run</h2>
+      <p class="rb-note">How recent each runner’s personal best is.</p>
+      <div class="rb-chart" id="c-year" data-source="byPbYear"></div>
+    </section>
+    <section class="rb-card" id="missing">
+      <h2>Birth year still missing</h2>
+      <p class="rb-note">Ask the coach or the runners for these to complete the age analysis.</p>
+      <div class="rb-tablewrap" style="max-height: 320px">
+        <table class="rb-table" id="missing-table" data-source="enriched" data-row-key="rank">
+          <thead><tr><th data-field="runner">Runner</th><th class="rb-num" data-field="pb">PB</th><th data-field="pbPlace">Where</th><th class="rb-num" data-field="pbYear">Year</th></tr></thead>
+          <tbody id="missing-body"></tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+</div>
+
+<script>
+dash.calc('enriched', {
+  inputs: ['runners'],
+  title: 'Runners with flat equivalents',
+  description: 'Each runner with times in seconds, birth decade, age at PB, the Authentic time minus 5:30 as a flat equivalent, and positions with and without that adjustment.',
+  fn: (runners) => {
+    const ADJUST = 330;
+    const sec = (t) => { if (!t) return null; const p = t.split(':').map(Number); return p[0] * 3600 + p[1] * 60 + p[2]; };
+    const fmt = (s) => Math.floor(s / 3600) + ':' + String(Math.floor(s % 3600 / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0');
+    const rows = runners.map((r) => {
+      const pbSec = sec(r.pb), authSec = sec(r.authenticBest);
+      const equivSec = authSec == null ? null : authSec - ADJUST;
+      const best = equivSec != null && equivSec < pbSec ? equivSec : pbSec;
+      const born = r.birthYear ? Number(r.birthYear) : null, pbYear = r.pbYear ? Number(r.pbYear) : null;
+      return {
+        rank: r.rank, runner: r.surname + ' ' + r.name, gender: r.gender === 'Γ' ? 'Women' : 'Men',
+        birthYear: r.birthYear, decade: born ? Math.floor(born / 10) * 10 + 's' : 'Unknown',
+        pbYear: r.pbYear, ageAtPb: born && pbYear ? pbYear - born : null,
+        pb: r.pb, pbSec, pbPlace: r.pbPlace, authenticBest: r.authenticBest,
+        authEquiv: equivSec == null ? '' : fmt(equivSec), authEquivSec: equivSec,
+        bestFlat: fmt(best), bestFlatSec: best, improved: best < pbSec,
+      };
+    });
+    const place = (list, field, out) => {
+      [...list].sort((a, b) => a[field] - b[field] || Number(a.rank) - Number(b.rank)).forEach((r, i) => { r[out] = i + 1; });
+    };
+    place(rows, 'pbSec', 'rankRaw');
+    place(rows, 'bestFlatSec', 'rankAdj');
+    for (const g of ['Men', 'Women']) {
+      const group = rows.filter((r) => r.gender === g);
+      place(group, 'pbSec', 'rankRawG');
+      place(group, 'bestFlatSec', 'rankAdjG');
+    }
+    const sign = (n) => (n > 0 ? '+' + n : n < 0 ? String(n) : '');
+    for (const r of rows) {
+      r.moveAllN = r.rankRaw - r.rankAdj;
+      r.moveAll = sign(r.moveAllN);
+      r.moveG = sign(r.rankRawG - r.rankAdjG);
+    }
+    return rows;
+  },
+});
+
+dash.calc('summary', {
+  inputs: ['enriched'],
+  title: 'Headline counts',
+  description: 'Counts of runners, men and women, Authentic finishers, those helped by the adjustment, sub-3 runners and missing birth years.',
+  fn: (enriched) => [{
+    runners: enriched.length,
+    men: enriched.filter((r) => r.gender === 'Men').length,
+    women: enriched.filter((r) => r.gender === 'Women').length,
+    authentic: enriched.filter((r) => r.authenticBest).length,
+    movedUp: enriched.filter((r) => r.improved).length,
+    sub3Raw: enriched.filter((r) => r.pbSec < 10800).length,
+    sub3Adj: enriched.filter((r) => r.bestFlatSec < 10800).length,
+    missingBirthYear: enriched.filter((r) => !r.birthYear).length,
+  }],
+});
+
+dash.calc('byDecade', {
+  inputs: ['enriched'],
+  title: 'Runners by birth decade',
+  description: 'Men and women per birth decade, with the fastest PB and fastest flat-equivalent time in each.',
+  fn: (enriched) => ['1960s', '1970s', '1980s', '1990s', 'Unknown'].map((decade) => {
+    const group = enriched.filter((r) => r.decade === decade);
+    const byPb = [...group].sort((a, b) => a.pbSec - b.pbSec)[0];
+    const byFlat = [...group].sort((a, b) => a.bestFlatSec - b.bestFlatSec)[0];
+    return {
+      decade, men: group.filter((r) => r.gender === 'Men').length, women: group.filter((r) => r.gender === 'Women').length,
+      total: group.length, fastestPb: byPb ? byPb.pb : '', fastestPbRunner: byPb ? byPb.runner : '',
+      fastestFlat: byFlat ? byFlat.bestFlat : '', fastestFlatRunner: byFlat ? byFlat.runner : '',
+    };
+  }).filter((d) => d.total > 0),
+});
+
+dash.calc('byPbYear', {
+  inputs: ['enriched'],
+  title: 'PBs per year',
+  description: 'How many runners set their personal best in each year (runners with no PB year are left out).',
+  fn: (enriched) => {
+    const years = enriched.filter((r) => r.pbYear).map((r) => Number(r.pbYear));
+    const out = [];
+    for (let y = Math.min(...years); y <= Math.max(...years); y++) out.push({ year: String(y), runners: years.filter((v) => v === y).length });
+    return out;
+  },
+});
+</script>
+
+<script>
+(() => {
+  const fmtShort = (s) => Math.floor(s / 3600) + ':' + String(Math.floor(s % 3600 / 60)).padStart(2, '0');
+  const decades = ['1960s', '1970s', '1980s', '1990s', 'Unknown'];
+  const decColor = (d) => ({ '1960s': dash.colors[3], '1970s': dash.colors[0], '1980s': dash.colors[1], '1990s': dash.colors[2] }[d] || 'var(--cds-chart-muted)');
+  const el = (id) => document.getElementById(id);
+
+  // controls
+  document.querySelectorAll('.rb-seg button').forEach((b) => b.addEventListener('click', () => dash.setParams({ gender: b.dataset.g })));
+  el('rb-adj').addEventListener('change', (e) => dash.setParams({ adjust: e.target.checked }));
+  el('rb-search').addEventListener('input', () => drawTable());
+
+  const failed = (node) => { node.replaceChildren(); const d = document.createElement('div'); d.className = 'rb-failed'; d.textContent = 'Failed to load'; node.appendChild(d); };
+  const tipFor = (box) => { let t = box.querySelector('.rb-tip'); if (!t) { t = document.createElement('div'); t.className = 'rb-tip'; box.appendChild(t); } return t; };
+  const showTip = (box, event, head, lines) => {
+    const t = tipFor(box);
+    t.replaceChildren();
+    const h = document.createElement('div'); h.className = 'rb-tip-h'; h.textContent = head; t.appendChild(h);
+    for (const l of lines) { const d = document.createElement('div'); d.textContent = l; t.appendChild(d); }
+    t.style.display = 'block';
+    const r = box.getBoundingClientRect();
+    let x = event.clientX - r.left + 12, y = event.clientY - r.top + 12;
+    const w = t.offsetWidth, hh = t.offsetHeight;
+    if (x + w > r.width) x = Math.max(0, event.clientX - r.left - w - 12);
+    if (y + hh > r.height) y = Math.max(0, event.clientY - r.top - hh - 12);
+    t.style.left = x + 'px'; t.style.top = y + 'px';
+  };
+  const hideTip = (box) => { const t = box.querySelector('.rb-tip'); if (t) t.style.display = 'none'; };
+
+  const state = () => {
+    const p = dash.params();
+    return { g: p.gender || 'all', adj: p.adjust !== false };
+  };
+  const shown = (rows) => { const { g } = state(); return g === 'all' ? rows : rows.filter((r) => r.gender === g); };
+  const val = (r) => (state().adj ? r.bestFlatSec : r.pbSec);
+
+  function drawLegends() {
+    for (const id of ['decade-legend', 'table-legend']) {
+      const box = el(id); box.replaceChildren();
+      for (const d of decades) {
+        const s = document.createElement('span'); const dot = document.createElement('i'); dot.className = 'rb-dot'; dot.style.background = decColor(d);
+        s.append(dot, d === 'Unknown' ? 'Birth year unknown' : 'Born in the ' + d); box.appendChild(s);
+      }
+    }
+  }
+
+  function drawTakeaway(rows, summary) {
+    const p = el('takeaway'); p.classList.remove('dash-skeleton'); p.replaceChildren();
+    const span = (row, field, text) => { const s = document.createElement('span'); s.className = 'rb-em'; s.dataset.source = 'enriched'; s.dataset.where = 'rank=' + encodeURIComponent(row.rank); s.dataset.field = field; s.textContent = text; return s; };
+    const top = [...rows].sort((a, b) => b.moveAllN - a.moveAllN)[0];
+    if (state().adj && top && top.moveAllN > 0) {
+      p.append('Counting the Authentic as a flat marathon, ', span(top, 'runner', top.runner), ' moves from ', span(top, 'rankRaw', String(top.rankRaw)), ' to ', span(top, 'rankAdj', String(top.rankAdj)),
+        ' overall: ', span(top, 'authenticBest', top.authenticBest), ' on the Authentic is worth about ', span(top, 'authEquiv', top.authEquiv), ' on a flat course.');
+    } else {
+      p.append('Ranked by personal best as recorded. Switch on the Authentic adjustment to re-rank the runners whose best race is the Athens Authentic.');
+    }
+  }
+
+  function drawTable() {
+    const d = dash.data('enriched'); const body = el('rank-body');
+    body.replaceChildren();
+    if (d.status !== 'ok') return;
+    const { g, adj } = state();
+    const posField = adj ? (g === 'all' ? 'rankAdj' : 'rankAdjG') : (g === 'all' ? 'rankRaw' : 'rankRawG');
+    const moveField = g === 'all' ? 'moveAll' : 'moveG';
+    el('th-pos').dataset.field = posField;
+    el('th-move').dataset.field = moveField;
+    el('th-move').hidden = !adj;
+    el('th-equiv').textContent = '≈ Flat';
+    const q = el('rb-search').value.trim().toLowerCase();
+    const rows = shown(d.data).filter((r) => !q || (r.runner + ' ' + r.pbPlace).toLowerCase().includes(q)).sort((a, b) => a[posField] - b[posField]);
+    for (const r of rows) {
+      const tr = document.createElement('tr'); tr.dataset.key = r.rank;
+      if (adj && r.improved) tr.className = 'rb-moved';
+      const td = (text, cls) => { const c = document.createElement('td'); if (cls) c.className = cls; c.textContent = text; tr.appendChild(c); return c; };
+      td(String(r[posField]), 'rb-num');
+      const name = document.createElement('td'); name.className = 'rb-runner';
+      const dot = document.createElement('i'); dot.className = 'rb-dot'; dot.style.background = decColor(r.decade);
+      name.append(dot, r.runner); tr.appendChild(name);
+      td(r.birthYear, 'rb-num rb-opt');
+      td(r.pb, 'rb-num' + (adj && r.improved ? '' : ' rb-strong'));
+      td(r.pbPlace, 'rb-opt');
+      td(r.pbYear, 'rb-num rb-opt');
+      td(r.authenticBest, 'rb-num');
+      td(r.authEquiv, 'rb-num' + (adj && r.improved ? ' rb-strong' : ''));
+      if (adj) { const m = r[moveField]; td(m, 'rb-num ' + (m.startsWith('+') ? 'rb-up' : 'rb-down')); }
+      body.appendChild(tr);
+    }
+  }
+
+  function dodge(points, radius) {
+    const r2 = (radius * 2) ** 2, eps = 1e-3; let head = null, tail = null;
+    const hits = (x, y) => { for (let a = head; a; a = a.next) if (r2 - eps > (a.x - x) ** 2 + (a.y - y) ** 2) return true; return false; };
+    for (const b of [...points].sort((a, c) => a.x - c.x)) {
+      while (head && head.x < b.x - radius * 2) head = head.next;
+      b.y = 0;
+      if (hits(b.x, 0)) {
+        b.y = Infinity;
+        for (let a = head; a; a = a.next) { const y = a.y + Math.sqrt(Math.max(0, r2 - (a.x - b.x) ** 2)); if (y < b.y && !hits(b.x, y)) b.y = y; }
+      }
+      b.next = null;
+      if (!head) head = tail = b; else tail = tail.next = b;
+    }
+    return points;
+  }
+
+  function drawStrip() {
+    const box = el('c-strip'); const d = dash.data('enriched');
+    box.replaceChildren();
+    if (d.status === 'error') return failed(box);
+    if (d.status !== 'ok') return;
+    const { g, adj } = state();
+    const W = box.clientWidth; const rad = W < 520 ? 3.5 : 5;
+    const lanes = g === 'all' ? ['Men', 'Women'] : [g];
+    const all = shown(d.data);
+    const vals = all.flatMap((r) => [r.pbSec, val(r)]);
+    const lo = Math.floor(d3.min(vals) / 600) * 600, hi = Math.ceil(d3.max(vals) / 600) * 600;
+    const x = d3.scaleLinear([lo, hi], [Math.max(rad + 6, 18), W - Math.max(rad + 6, 18)]);
+    const svg = d3.select(box).append('svg').attr('width', '100%');
+    const ticks = d3.range(lo, hi + 1, 600);
+    let y0 = 0;
+    const laneG = [];
+    for (const lane of lanes) {
+      const rows = all.filter((r) => r.gender === lane);
+      const pts = dodge(rows.map((r) => ({ x: x(val(r)), r })), rad + 0.6);
+      const maxY = d3.max(pts, (p) => p.y) || 0;
+      const h = 22 + maxY + rad * 2 + 10;
+      laneG.push({ lane, pts, top: y0, h });
+      y0 += h;
+    }
+    const H = y0 + 26;
+    svg.attr('viewBox', `0 0 ${W} ${H}`).attr('height', H);
+    svg.append('g').selectAll('line').data(ticks).join('line').attr('x1', (t) => x(t)).attr('x2', (t) => x(t)).attr('y1', 0).attr('y2', y0)
+      .attr('stroke', 'var(--cds-chart-grid)').attr('stroke-width', 1);
+    const fmtTick = (t) => fmtShort(t);
+    const tickG = svg.append('g').attr('transform', `translate(0,${y0})`);
+    tickG.append('line').attr('x1', x(lo)).attr('x2', x(hi)).attr('stroke', 'var(--cds-chart-axis)');
+    const every = W < 520 ? 2 : 1;
+    tickG.selectAll('text').data(ticks.filter((_, i) => i % every === 0)).join('text').attr('x', (t) => x(t)).attr('y', 18).attr('text-anchor', 'middle')
+      .attr('fill', 'var(--color-fg-muted)').style('font-size', 'var(--cds-font-size-caption)').text(fmtTick);
+    for (const L of laneG) {
+      const g2 = svg.append('g').attr('transform', `translate(0,${L.top})`);
+      g2.append('text').attr('x', 2).attr('y', 14).attr('fill', 'var(--color-fg-muted)').style('font-size', 'var(--cds-font-size-caption)').text(L.lane);
+      const base = L.h - 10 - rad;
+      if (adj) {
+        g2.selectAll('line.tail').data(L.pts.filter((p) => p.r.improved)).join('line').attr('class', 'tail')
+          .attr('x1', (p) => x(p.r.pbSec)).attr('x2', (p) => p.x).attr('y1', (p) => base - p.y).attr('y2', (p) => base - p.y)
+          .attr('stroke', 'var(--cds-chart-muted)').attr('stroke-width', 2).attr('stroke-linecap', 'round');
+      }
+      g2.selectAll('circle').data(L.pts).join('circle').attr('cx', (p) => p.x).attr('cy', (p) => base - p.y).attr('r', rad)
+        .attr('fill', (p) => decColor(p.r.decade)).style('cursor', 'default')
+        .on('mousemove', (event, p) => {
+          const r = p.r; const lines = ['PB ' + r.pb + ' · ' + r.pbPlace + (r.pbYear ? ' ' + r.pbYear : '')];
+          if (r.authenticBest) lines.push('Authentic ' + r.authenticBest + ' ≈ ' + r.authEquiv + ' flat');
+          lines.push(r.birthYear ? 'Born ' + r.birthYear : 'Birth year unknown');
+          showTip(box, event, r.runner, lines);
+        })
+        .on('mouseleave', () => hideTip(box));
+    }
+    el('spread-note').textContent = adj
+      ? 'Every runner on one time axis, coloured by birth decade. A grey tail shows how far the Authentic adjustment moved them.'
+      : 'Every runner on one time axis by recorded PB, coloured by birth decade.';
+  }
+
+  function drawAge() {
+    const box = el('c-age'); const d = dash.data('enriched');
+    box.replaceChildren();
+    if (d.status === 'error') return failed(box);
+    if (d.status !== 'ok') return;
+    const rows = shown(d.data).filter((r) => r.ageAtPb != null);
+    const W = box.clientWidth, H = 260;
+    const svg = d3.select(box).append('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`).attr('height', H);
+    const ys = rows.map(val);
+    const lo = Math.floor(d3.min(ys) / 600) * 600, hi = Math.ceil(d3.max(ys) / 600) * 600;
+    const yTicks = d3.range(lo, hi + 1, 1200 > hi - lo ? 600 : 1200);
+    const meas = svg.append('text').style('font-size', 'var(--cds-font-size-caption)').text(fmtShort(hi));
+    const ml = meas.node().getComputedTextLength() + 10; meas.remove();
+    const mt = 8, mb = 34, mr = 10;
+    const x = d3.scaleLinear([d3.min(rows, (r) => r.ageAtPb) - 1, d3.max(rows, (r) => r.ageAtPb) + 1], [ml, W - mr]);
+    const y = d3.scaleLinear([lo, hi], [mt, H - mb]);
+    svg.append('g').selectAll('line').data(yTicks).join('line').attr('x1', ml).attr('x2', W - mr).attr('y1', (t) => y(t)).attr('y2', (t) => y(t)).attr('stroke', 'var(--cds-chart-grid)');
+    svg.append('g').selectAll('text').data(yTicks).join('text').attr('x', ml - 6).attr('y', (t) => y(t) + 4).attr('text-anchor', 'end')
+      .attr('fill', 'var(--color-fg-muted)').style('font-size', 'var(--cds-font-size-caption)').text(fmtShort);
+    const xt = x.ticks(Math.max(3, Math.floor(W / 70)));
+    svg.append('line').attr('x1', ml).attr('x2', W - mr).attr('y1', H - mb).attr('y2', H - mb).attr('stroke', 'var(--cds-chart-axis)');
+    svg.append('g').selectAll('text').data(xt).join('text').attr('x', (t) => x(t)).attr('y', H - mb + 16).attr('text-anchor', 'middle')
+      .attr('fill', 'var(--color-fg-muted)').style('font-size', 'var(--cds-font-size-caption)').text((t) => t);
+    svg.append('text').attr('x', W - mr).attr('y', H - 2).attr('text-anchor', 'end').attr('fill', 'var(--color-fg-muted)').style('font-size', 'var(--cds-font-size-caption)').text('Age at PB');
+    svg.append('g').selectAll('circle').data(rows).join('circle').attr('cx', (r) => x(r.ageAtPb)).attr('cy', (r) => y(val(r))).attr('r', 5)
+      .attr('fill', (r) => (r.gender === 'Women' ? 'none' : decColor(r.decade)))
+      .attr('stroke', (r) => decColor(r.decade)).attr('stroke-width', (r) => (r.gender === 'Women' ? 2 : 0))
+      .on('mousemove', (event, r) => showTip(box, event, r.runner, ['Age ' + r.ageAtPb + ' at PB (' + r.pbYear + ')', (state().adj ? 'Flat-equivalent ' + r.bestFlat : 'PB ' + r.pb)]))
+      .on('mouseleave', () => hideTip(box));
+  }
+
+  function drawDecades() {
+    const box = el('c-decade'); const d = dash.data('byDecade');
+    box.replaceChildren();
+    if (d.status === 'error') return failed(box);
+    if (d.status !== 'ok') return;
+    const adj = state().adj;
+    const max = d3.max(d.data, (r) => r.total);
+    for (const r of d.data) {
+      const row = document.createElement('div'); row.className = 'rb-barrow';
+      const lab = document.createElement('div'); lab.textContent = r.decade === 'Unknown' ? 'Unknown' : r.decade; row.appendChild(lab);
+      const track = document.createElement('div'); track.className = 'rb-bartrack';
+      const seg = (n, op, who) => { if (!n) return; const s = document.createElement('div'); s.className = 'rb-barseg'; s.style.width = (n / max * 100) + '%'; s.style.background = decColor(r.decade); s.style.opacity = op; s.title = ''; s.addEventListener('mousemove', (e) => showTip(box, e, r.decade, [n + ' ' + who])); s.addEventListener('mouseleave', () => hideTip(box)); track.appendChild(s); };
+      box.style.position = 'relative';
+      seg(r.men, 1, 'men'); seg(r.women, 0.45, 'women');
+      row.appendChild(track);
+      const meta = document.createElement('div'); meta.className = 'rb-barmeta';
+      meta.textContent = r.total + ' runners · fastest ' + (adj ? r.fastestFlat + ' (' + r.fastestFlatRunner + ')' : r.fastestPb + ' (' + r.fastestPbRunner + ')');
+      row.appendChild(meta);
+      box.appendChild(row);
+    }
+  }
+
+  function drawYears() {
+    const box = el('c-year'); const d = dash.data('byPbYear');
+    box.replaceChildren();
+    if (d.status === 'error') return failed(box);
+    if (d.status !== 'ok') return;
+    const W = box.clientWidth, H = 220, mt = 8, mb = 26, ml = 26, mr = 6;
+    const svg = d3.select(box).append('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`).attr('height', H);
+    const x = d3.scaleBand(d.data.map((r) => r.year), [ml, W - mr]).padding(0.25);
+    const y = d3.scaleLinear([0, d3.max(d.data, (r) => r.runners)], [H - mb, mt]).nice();
+    svg.append('g').selectAll('line').data(y.ticks(4)).join('line').attr('x1', ml).attr('x2', W - mr).attr('y1', (t) => y(t)).attr('y2', (t) => y(t)).attr('stroke', 'var(--cds-chart-grid)');
+    svg.append('g').selectAll('text').data(y.ticks(4)).join('text').attr('x', ml - 6).attr('y', (t) => y(t) + 4).attr('text-anchor', 'end').attr('fill', 'var(--color-fg-muted)').style('font-size', 'var(--cds-font-size-caption)').text((t) => t);
+    svg.append('g').selectAll('rect').data(d.data).join('rect').attr('x', (r) => x(r.year)).attr('width', x.bandwidth()).attr('y', (r) => y(r.runners)).attr('height', (r) => y(0) - y(r.runners))
+      .attr('rx', 3).attr('fill', dash.colors[0])
+      .on('mousemove', (event, r) => showTip(box, event, r.year, [r.runners + (r.runners === 1 ? ' runner' : ' runners')]))
+      .on('mouseleave', () => hideTip(box));
+    const step = Math.ceil(d.data.length / Math.max(2, Math.floor(W / 46)));
+    svg.append('g').selectAll('text').data(d.data.filter((_, i) => i % step === 0 || i === d.data.length - 1)).join('text').attr('x', (r) => x(r.year) + x.bandwidth() / 2).attr('y', H - 8)
+      .attr('text-anchor', 'middle').attr('fill', 'var(--color-fg-muted)').style('font-size', 'var(--cds-font-size-caption)').text((r) => "'" + r.year.slice(2));
+  }
+
+  function drawHistory() {
+    const box = el('c-history'); const h = dash.data('history'); const e = dash.data('enriched');
+    box.replaceChildren();
+    if (h.status === 'error') return failed(box);
+    if (h.status !== 'ok' || e.status !== 'ok') return;
+    const { adj } = state();
+    const allowed = new Set(shown(e.data).map((r) => r.rank));
+    const sec = (t) => { const p = t.split(':').map(Number); return p[0] * 3600 + p[1] * 60 + p[2]; };
+    const races = h.data.map((r) => ({ ...r, d: new Date(r.date), s: sec(r.time) }));
+    const xDom = d3.extent(races, (r) => r.d);
+    const yLo = Math.floor((d3.min(races, (r) => r.s) - (adj ? 330 : 0)) / 600) * 600;
+    const yHi = Math.ceil(d3.max(races, (r) => r.s) / 600) * 600;
+    const byRunner = d3.group(races.filter((r) => allowed.has(r.rank)), (r) => r.rank);
+    const order = [...byRunner.keys()].sort((a, b) => Number(a) - Number(b));
+    if (!order.length) { const p = document.createElement('p'); p.className = 'rb-note'; p.textContent = 'No race history for this group.'; box.appendChild(p); return; }
+    for (const rank of order) {
+      const list = byRunner.get(rank).sort((a, b) => a.d - b.d);
+      const cell = document.createElement('div'); cell.className = 'rb-mini';
+      const head = document.createElement('div'); head.className = 'rb-mini-h';
+      const nm = document.createElement('b'); nm.textContent = list[0].runner;
+      const ct = document.createElement('span'); ct.textContent = list.length + (list.length === 1 ? ' race' : ' races');
+      head.append(nm, ct); cell.appendChild(head); box.appendChild(cell);
+      const W = cell.clientWidth, H = 120, ml = 34, mr = 6, mt = 8, mb = 18;
+      const x = d3.scaleUtc(xDom, [ml, W - mr]);
+      const y = d3.scaleLinear([yLo, yHi], [mt, H - mb]);
+      const svg = d3.select(cell).append('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`).attr('height', H);
+      const yt = d3.range(yLo, yHi + 1, 1800);
+      svg.append('g').selectAll('line').data(yt).join('line').attr('x1', ml).attr('x2', W - mr).attr('y1', (t) => y(t)).attr('y2', (t) => y(t)).attr('stroke', 'var(--cds-chart-grid)');
+      svg.append('g').selectAll('text').data(yt).join('text').attr('x', ml - 4).attr('y', (t) => y(t) + 4).attr('text-anchor', 'end').attr('fill', 'var(--color-fg-muted)').style('font-size', '10px').text(fmtShort);
+      const xt = d3.utcYear.range(d3.utcYear.ceil(xDom[0]), xDom[1]);
+      const step = Math.ceil(xt.length / Math.max(2, Math.floor((W - ml) / 40)));
+      svg.append('g').selectAll('text').data(xt.filter((_, i) => i % step === 0)).join('text').attr('x', (t) => x(t)).attr('y', H - 4).attr('text-anchor', 'middle').attr('fill', 'var(--color-fg-muted)').style('font-size', '10px').text((t) => "'" + String(t.getUTCFullYear()).slice(2));
+      svg.append('path').datum(list).attr('fill', 'none').attr('stroke', 'var(--cds-chart-muted)').attr('stroke-width', 1.5).attr('stroke-linejoin', 'round').attr('stroke-linecap', 'round')
+        .attr('d', d3.line((r) => x(r.d), (r) => y(r.s)));
+      if (adj) {
+        svg.append('g').selectAll('line').data(list.filter((r) => r.authentic === 'yes')).join('line').attr('x1', (r) => x(r.d)).attr('x2', (r) => x(r.d)).attr('y1', (r) => y(r.s)).attr('y2', (r) => y(r.s - 330))
+          .attr('stroke', dash.colors[1]).attr('stroke-width', 2).attr('stroke-linecap', 'round');
+      }
+      const best = d3.min(list, (r) => r.s);
+      svg.append('g').selectAll('circle').data(list).join('circle').attr('cx', (r) => x(r.d)).attr('cy', (r) => y(r.s)).attr('r', 4)
+        .attr('fill', (r) => (r.authentic === 'yes' ? 'var(--color-panel)' : r.s === best ? dash.colors[0] : 'var(--cds-chart-muted)'))
+        .attr('stroke', (r) => (r.authentic === 'yes' ? dash.colors[1] : 'none')).attr('stroke-width', 2)
+        .on('mousemove', (event, r) => {
+          const lines = [r.race + ' · ' + d3.utcFormat('%-d %b %Y')(r.d), r.time];
+          if (r.authentic === 'yes') lines.push('Authentic ≈ ' + fmtShort(r.s - 330) + ':' + String((r.s - 330) % 60).padStart(2, '0') + ' flat');
+          showTip(box, event, r.runner, lines);
+        })
+        .on('mouseleave', () => hideTip(box));
+    }
+  }
+
+  function drawMissing() {
+    const d = dash.data('enriched'); const body = el('missing-body');
+    body.replaceChildren();
+    if (d.status !== 'ok') return;
+    for (const r of shown(d.data).filter((r) => !r.birthYear)) {
+      const tr = document.createElement('tr'); tr.dataset.key = r.rank;
+      for (const [t, c] of [[r.runner, ''], [r.pb, 'rb-num'], [r.pbPlace, ''], [r.pbYear, 'rb-num']]) { const td = document.createElement('td'); td.className = c; td.textContent = t; tr.appendChild(td); }
+      body.appendChild(tr);
+    }
+  }
+
+  dash.onData(() => {
+    const { g, adj } = state();
+    document.querySelectorAll('.rb-seg button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.g === g)));
+    el('rb-adj').checked = adj;
+    const sub3 = el('kpi-sub3'); sub3.dataset.field = adj ? 'sub3Adj' : 'sub3Raw';
+    el('kpi-sub3-note').textContent = adj ? 'flat-equivalent best' : 'personal best as recorded';
+    const s = dash.data('summary');
+    document.querySelectorAll('[data-source="summary"]').forEach((n) => {
+      if (s.status === 'ok') { n.classList.remove('dash-skeleton'); n.textContent = String(s.data[0][n.dataset.field]); }
+      else if (s.status === 'error') { n.classList.remove('dash-skeleton'); n.textContent = '—'; }
+      else n.textContent = '—';
+    });
+    const e = dash.data('enriched');
+    drawLegends();
+    if (e.status === 'ok') drawTakeaway(e.data, s.data); else { const p = el('takeaway'); p.replaceChildren(); if (e.status === 'error') p.classList.remove('dash-skeleton'); }
+    drawTable(); drawStrip(); drawHistory(); drawAge(); drawDecades(); drawYears(); drawMissing();
+  });
+})();
+</script>
