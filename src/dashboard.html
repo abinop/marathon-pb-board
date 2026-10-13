@@ -775,7 +775,6 @@ dash.calc('byPbYear', {
       else if (s.status === 'error') { n.classList.remove('dash-skeleton'); n.textContent = '—'; }
       else n.textContent = '—';
     });
-    const e = dash.data('enriched');
     drawLegends();
     drawTable(); drawStrip(); drawHistory(); drawAge(); drawDecades(); drawYears(); drawMissing();
   });
