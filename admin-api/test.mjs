@@ -48,9 +48,10 @@ throwsStatus(() => editRunner({ rank: '9', fields: { evil: 'x' } }), 400);
 console.log('all tests passed');
 
 // notes: stored on the race row, bad links rejected
-d = fresh(); out = addRace({ rank: '9', race: 'Munich', date: '2026-10-11', time: '2:59:00', notes: 'https://example.com/results?id=1' })(d);
-assert.equal(d.history.rows.find((h) => h.date === '2026-10-11').notes, 'https://example.com/results?id=1');
+d = fresh(); out = addRace({ rank: '9', race: 'Munich', date: '2026-10-04', time: '2:59:00', notes: 'https://example.com/results?id=1' })(d);
+assert.equal(d.history.rows.find((h) => h.date === '2026-10-04').notes, 'https://example.com/results?id=1');
 assert.ok(toCsv(d.history).includes(',https://example.com/results?id=1\r\n'));
 throwsStatus(() => addRace({ rank: '9', race: 'X', date: '2026-01-01', time: '3:00:00', notes: 'http://' }), 400);
+throwsStatus(() => addRace({ rank: '9', race: 'X', date: '2026-01-01', time: '3:00:00', notes: 'https:example.com' }), 400);
 throwsStatus(() => addRace({ rank: '9', race: 'X', date: '2026-01-01', time: '3:00:00', notes: 'a\nb' }), 400);
 console.log('notes tests passed');

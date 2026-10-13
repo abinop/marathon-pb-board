@@ -194,7 +194,11 @@ function addRace(input) {
   const authentic = input.authentic === true;
   const note = String(input.notes ?? '').trim();
   if (note.length > 300 || /[\r\n]/.test(note)) throw new HttpError(400, 'Σχόλια / σύνδεσμος: μία γραμμή, έως 300 χαρακτήρες.');
-  if (/^https?:/i.test(note)) { try { new URL(note); } catch { throw new HttpError(400, 'Ο σύνδεσμος δεν είναι έγκυρος.'); } }
+  if (/^https?:/i.test(note)) { // same test the pages use to show it as a link
+    let ok = /^https?:\/\/\S+$/i.test(note);
+    try { new URL(note); } catch { ok = false; }
+    if (!ok) throw new HttpError(400, 'Ο σύνδεσμος δεν είναι έγκυρος.');
+  }
   return ({ runners, history }) => {
     const r = findRunner(runners, input.rank);
     if (history.rows.some((h) => h.rank === r.rank && h.date === date)) throw new HttpError(409, `Υπάρχει ήδη αγώνας για ${fullName(r)} στις ${date}.`);
