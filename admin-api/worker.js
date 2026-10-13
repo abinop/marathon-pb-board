@@ -192,10 +192,18 @@ function addRace(input) {
   const date = String(input.date || ''); checkDate(date);
   const time = String(input.time || '').trim(); checkTime(time, 'Χρόνος');
   const authentic = input.authentic === true;
+  const note = String(input.notes ?? '').trim();
+  if (note.length > 300 || /[\r\n]/.test(note)) throw new HttpError(400, 'Σχόλια / σύνδεσμος: μία γραμμή, έως 300 χαρακτήρες.');
+  if (/^https?:/i.test(note)) { // same test the pages use to show it as a link
+    let ok = /^https?:\/\/\S+$/i.test(note);
+    try { new URL(note); } catch { ok = false; }
+    if (!ok) throw new HttpError(400, 'Ο σύνδεσμος δεν είναι έγκυρος.');
+  }
   return ({ runners, history }) => {
     const r = findRunner(runners, input.rank);
     if (history.rows.some((h) => h.rank === r.rank && h.date === date)) throw new HttpError(409, `Υπάρχει ήδη αγώνας για ${fullName(r)} στις ${date}.`);
-    const row = { rank: r.rank, runner: fullName(r), race, date, time, authentic: authentic ? 'yes' : 'no' };
+    if (!history.header.includes('notes')) history.header.push('notes');
+    const row = { rank: r.rank, runner: fullName(r), race, date, time, authentic: authentic ? 'yes' : 'no', notes: note };
     // keep each runner's races together and in date order
     const mine = history.rows.map((h, i) => [h, i]).filter(([h]) => h.rank === r.rank);
     const after = mine.filter(([h]) => h.date <= date).pop() || null;
@@ -203,6 +211,7 @@ function addRace(input) {
     history.rows.splice(at, 0, row);
 
     const notes = [`Νέος αγώνας: ${race}, ${date}, ${time}${authentic ? ' (Αυθεντικός)' : ''}.`];
+    if (note) notes.push(`Σχόλια / σύνδεσμος: ${note}`);
     if (!r.pb || sec(time) < sec(r.pb)) {
       notes.push(`Νέο ατομικό ρεκόρ: ${r.pb || '—'} → ${time} (${race} ${date.slice(0, 4)}).`);
       Object.assign(r, { pb: time, pbYear: date.slice(0, 4), pbPlace: race });
@@ -284,7 +293,10 @@ export default {
     catch (e) {
       status = e instanceof HttpError ? e.status : 500;
       if (status >= 500) console.error(e);
-      out = { error: status === 502 ? 'Αποτυχία επικοινωνίας με το GitHub. Δοκιμάστε ξανά.' : e instanceof HttpError ? e.message : 'Σφάλμα διακομιστή.' };
+      const ghMsg = e.github === 401 ? 'Το κλειδί GitHub έληξε ή ανακλήθηκε. Ο διαχειριστής πρέπει να βάλει νέο (GITHUB_TOKEN).'
+        : e.github === 403 || e.github === 404 ? 'Το κλειδί GitHub δεν έχει δικαίωμα εγγραφής (Contents: Read and write) σε αυτό το αποθετήριο.'
+        : 'Αποτυχία επικοινωνίας με το GitHub. Δοκιμάστε ξανά.';
+      out = { error: status === 502 ? ghMsg : e instanceof HttpError ? e.message : 'Σφάλμα διακομιστή.' };
     }
     return new Response(JSON.stringify(out), { status, headers: { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store', ...cors } });
   },

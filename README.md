@@ -19,7 +19,7 @@ A one-page dashboard of the coach's list of marathon personal bests: ranking, At
 | authenticBest | best Athens Authentic time, blank if none |
 
 ### `data/race-history.csv`
-`rank` must match a runner's `rank` in `runners.csv`. `authentic` is `yes` for Athens races.
+`rank` must match a runner's `rank` in `runners.csv`. `authentic` is `yes` for Athens races. `notes` is optional free text or a link to the results (one line, up to 300 characters).
 
 ## Files
 - `src/admin.html` — the admin page
