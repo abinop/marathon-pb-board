@@ -72,6 +72,7 @@
     <section class="ad-card" id="runner-card" hidden style="margin-top: var(--cds-gap-lg)">
       <h2 id="r-name"></h2>
       <div class="ad-facts" id="r-facts"></div>
+      <div id="r-progress" style="margin-bottom: var(--cds-gap-lg)"></div>
 
       <div class="ad-tabs" role="tablist">
         <button type="button" role="tab" data-tab="race" aria-selected="true">Νέος αγώνας</button>
@@ -129,6 +130,7 @@
 (() => {
   const API = location.hostname === 'localhost' || location.hostname === '127.0.0.1' ? 'http://localhost:8787' : '__ADMIN_API__';
   const CITY = __CITY__;
+__RUNNER_DETAIL__
   const el = (id) => document.getElementById(id);
   const toKey = Object.fromEntries(Object.entries(CITY).map(([k, v]) => [v.toLowerCase(), k]));
   const cityIn = (v) => toKey[v.trim().toLowerCase()] || v.trim();
@@ -199,6 +201,7 @@
     const f = el('edit-form');
     for (const k of ['surname', 'name', 'gender', 'birthYear', 'pb', 'pbYear', 'authenticBest']) f.elements[k].value = r[k];
     f.elements.pbPlace.value = cityOut(r.pbPlace);
+    renderProgress();
     const races = data.history.filter((h) => h.rank === rank).sort((a, b) => b.date.localeCompare(a.date));
     el('r-noraces').hidden = races.length > 0;
     el('r-races').replaceChildren(...races.map((h) => {
@@ -218,6 +221,11 @@
       acts.append(fix, ' ', del); tr.appendChild(acts);
       return tr;
     }));
+  }
+
+  function renderProgress() {
+    const r = data && data.runners.find((x) => x.rank === current);
+    if (r) RunnerDetail.render(el('r-progress'), r, data.history, { city: cityOut, emptyHint: 'Για γράφημα χρειάζονται τουλάχιστον δύο αγώνες με ημερομηνία.' });
   }
 
   function clearPreview() { pending = null; el('preview').hidden = true; }
@@ -303,6 +311,9 @@
     } catch (e) { setMsg(el('msg'), e.message, 'err'); }
     btn.disabled = false;
   });
+
+  // redraw only the chart on resize, so unsaved form edits survive
+  let resized; window.addEventListener('resize', () => { clearTimeout(resized); resized = setTimeout(renderProgress, 150); });
 
   if (token) start().catch((e) => setMsg(el('login-msg'), e.message, 'err'));
 })();

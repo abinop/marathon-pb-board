@@ -91,5 +91,7 @@ write('index.html', 'Ατομικά ρεκόρ μαραθωνίου 2026', DASH_
 
 # The admin page shares the dashboard's city names (Greek display <-> English key in the CSVs).
 city = re.search(r'const CITY = (\{.*?\n\});', page, re.S).group(1)
-admin = (ROOT / 'src' / 'admin.html').read_text(encoding='utf-8').replace('__CITY__', city).replace('__ADMIN_API__', ADMIN_API)
-write('admin.html', 'Διαχείριση · Ατομικά ρεκόρ μαραθωνίου', '<meta name="robots" content="noindex">\n', admin)
+# ...and the runner progress chart, between the <runner-detail> markers.
+detail = re.search(r'// <runner-detail>.*?// </runner-detail>', page, re.S).group(0)
+admin = (ROOT / 'src' / 'admin.html').read_text(encoding='utf-8').replace('__CITY__', city).replace('__RUNNER_DETAIL__', detail).replace('__ADMIN_API__', ADMIN_API)
+write('admin.html', 'Διαχείριση · Ατομικά ρεκόρ μαραθωνίου', '<meta name="robots" content="noindex">\n<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>\n', admin)
