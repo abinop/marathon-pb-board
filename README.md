@@ -4,7 +4,7 @@ A one-page dashboard of the coach's list of marathon personal bests: ranking, At
 
 ## Updating the data
 
-**Admin page** (`/admin.html` on the site, login required): pick an athlete, then add a new race (city, date, finish time, Athens Authentic or not) or edit their details. A faster race updates the athlete's PB automatically. Each save is a commit to this repo, and the site updates 1–2 minutes later.
+**Admin page** (`/admin.html` on the site, login required): pick an athlete, then add a new race (city, date, finish time, Athens Authentic or not) or edit their details. A faster race updates the athlete's PB automatically. Each saved race has «Διόρθωση» (edit) and «Διαγραφή» (delete) buttons. Adding a second race for the same athlete and date warns and replaces the first. Each save is a commit to this repo, and the site updates 1–2 minutes later.
 
 **By hand:** edit the CSVs below and push to `main`. The GitHub Action runs `build.py` and publishes. For a local preview, run `python3 build.py` and `python3 -m http.server 8000`.
 
