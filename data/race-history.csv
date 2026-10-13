@@ -35,23 +35,30 @@ rank,runner,race,date,time,authentic,notes
 11,Κόγκας Θανάσης,Milan,2023-04-02,3:14:50,no,
 11,Κόγκας Θανάσης,Valencia,2023-12-03,3:05:30,no,
 11,Κόγκας Θανάσης,Thessaloniki,2024-04-21,2:58:14,no,
+11,Κόγκας Θανάσης,Ljubljana,2025-10-19,2:53:59,no,https://ljubljanskimaraton.si/en/results/single?lm=29&cat=42M
 12,Ανωμερίτης Γιώργος,Thessaloniki,2021-11-21,3:10:08,no,
 12,Ανωμερίτης Γιώργος,Thessaloniki,2022-04-10,3:03:46,no,
 12,Ανωμερίτης Γιώργος,Frankfurt,2022-10-30,3:14:25,no,
 12,Ανωμερίτης Γιώργος,Hamburg,2023-04-23,3:00:54,no,
 12,Ανωμερίτης Γιώργος,Valencia,2023-12-03,2:58:16,no,
 12,Ανωμερίτης Γιώργος,Hamburg,2024-04-28,3:14:11,no,
+12,Ανωμερίτης Γιώργος,Ljubljana,2025-10-19,2:54:32,no,https://ljubljanskimaraton.si/en/results/single?lm=29&cat=42M
 14,Πατμανίδης Δημήτρης,Thessaloniki,2022-04-10,3:13:27,no,
 14,Πατμανίδης Δημήτρης,Frankfurt,2022-10-30,3:04:27,no,
 14,Πατμανίδης Δημήτρης,Milan,2023-04-02,2:58:48,no,
 14,Πατμανίδης Δημήτρης,Valencia,2023-12-03,2:58:21,no,
 14,Πατμανίδης Δημήτρης,Hamburg,2024-04-28,3:05:22,no,
+14,Πατμανίδης Δημήτρης,Pisa,2024-12-15,2:57:38,no,πηγή: myrace.gr / racetool
+14,Πατμανίδης Δημήτρης,Ljubljana,2025-10-19,2:55:35,no,https://ljubljanskimaraton.si/en/results/single?lm=29&cat=42M
 14,Πατμανίδης Δημήτρης,Munich,2026-10-11,2:54:57,no,https://muenchen.r.mikatiming.com/2026/?pid=list
 9,Μπινόπουλος Αλέξανδρος,Thessaloniki,2021-11-21,3:17:23,no,
+9,Μπινόπουλος Αλέξανδρος,Thessaloniki,2022-04-10,3:41:50,no,πηγή: myrace.gr / racetool
 9,Μπινόπουλος Αλέξανδρος,Frankfurt,2022-10-30,3:07:20,no,
 9,Μπινόπουλος Αλέξανδρος,Milan,2023-04-02,3:00:03,no,
 9,Μπινόπουλος Αλέξανδρος,Valencia,2023-12-03,2:58:21,no,
 9,Μπινόπουλος Αλέξανδρος,Hamburg,2024-04-28,2:58:59,no,
+9,Μπινόπουλος Αλέξανδρος,Pisa,2024-12-15,2:57:39,no,πηγή: myrace.gr / racetool
+9,Μπινόπουλος Αλέξανδρος,Ljubljana,2025-10-19,2:54:14,no,https://ljubljanskimaraton.si/en/results/single?lm=29&cat=42M
 9,Μπινόπουλος Αλέξανδρος,Munich,2026-10-11,2:53:43,no,https://muenchen.r.mikatiming.com/2026/?pid=list
 25,Κοκιόπουλος Παντελής,Thessaloniki,2021-11-21,3:02:54,no,
 25,Κοκιόπουλος Παντελής,Thessaloniki,2022-04-14,2:58:44,no,
@@ -59,6 +66,8 @@ rank,runner,race,date,time,authentic,notes
 10,Χαϊδεμένος Μάρκος,Thessaloniki,2021-11-21,3:15:13,no,
 10,Χαϊδεμένος Μάρκος,Valencia,2023-12-03,2:59:43,no,
 10,Χαϊδεμένος Μάρκος,Hamburg,2024-04-28,3:25:10,no,
+10,Χαϊδεμένος Μάρκος,Pisa,2024-12-15,2:57:39,no,πηγή: myrace.gr / racetool
+10,Χαϊδεμένος Μάρκος,Athens,2025-11-09,3:00:52,yes,πηγή: myrace.gr / racetool
 10,Χαϊδεμένος Μάρκος,Munich,2026-10-11,2:53:44,no,https://muenchen.r.mikatiming.com/2026/?pid=list
 35,Γαρμπής Νίκος,Prague,2019-05-05,3:22:14,no,
 35,Γαρμπής Νίκος,Athens,2019-11-10,3:26:24,yes,
@@ -72,3 +81,54 @@ rank,runner,race,date,time,authentic,notes
 43,Κωνσταντόπουλος Γιώργος,Hannover,2018-04-07,3:04:57,no,
 43,Κωνσταντόπουλος Γιώργος,Thessaloniki,2022-04-10,3:08:58,no,
 43,Κωνσταντόπουλος Γιώργος,Milan,2023-04-02,3:13:21,no,
+1,Γιαννέλης Σωτήρης,Athens,2024-11-10,3:10:38,yes,πηγή: myrace.gr / racetool
+18,Μαύρος Τάκης,Milan,2024-04-07,3:04:18,no,πηγή: myrace.gr / racetool
+20,Σκαλιστήρη Δανάη,Athens,2022-11-13,3:12:04,yes,πηγή: myrace.gr / racetool
+21,Μπουρλάς Φειδίας,Thessaloniki,2025-04-06,3:13:43,no,πηγή: myrace.gr / racetool
+21,Μπουρλάς Φειδίας,Athens,2025-11-09,3:04:29,yes,πηγή: myrace.gr / racetool
+24,Πετρής Σοφιανός,Athens,2022-11-13,3:47:03,yes,πηγή: myrace.gr / racetool
+24,Πετρής Σοφιανός,Vienna,2023-04-23,3:22:25,no,πηγή: myrace.gr / racetool
+24,Πετρής Σοφιανός,Athens,2023-11-12,3:58:14,yes,πηγή: myrace.gr / racetool
+24,Πετρής Σοφιανός,Athens,2024-11-10,3:43:22,yes,πηγή: myrace.gr / racetool
+26,Σεμπέκος Γιώργος,Athens,2022-11-13,3:56:30,yes,πηγή: myrace.gr / racetool
+28,Λουκίδου Μαρία,Thessaloniki,2022-04-10,3:17:30,no,πηγή: myrace.gr / racetool
+28,Λουκίδου Μαρία,Athens,2022-11-13,3:04:27,yes,πηγή: myrace.gr / racetool
+28,Λουκίδου Μαρία,Athens,2023-11-12,3:07:34,yes,πηγή: myrace.gr / racetool
+28,Λουκίδου Μαρία,Athens,2024-11-10,3:00:51,yes,πηγή: myrace.gr / racetool
+30,Παπαντωνάτου Λουίζα,Thessaloniki,2022-04-10,3:04:12,no,πηγή: myrace.gr / racetool
+30,Παπαντωνάτου Λουίζα,Thessaloniki,2025-04-06,3:13:20,no,πηγή: myrace.gr / racetool
+31,Μενάγιας Παναγιώτης,London,2025-04-27,3:22:11,no,πηγή: myrace.gr / racetool
+33,Ντάνος Θανάσης,Thessaloniki,2024-04-21,3:11:08,no,πηγή: myrace.gr / racetool
+33,Ντάνος Θανάσης,Thessaloniki,2025-04-06,3:05:25,no,πηγή: myrace.gr / racetool
+34,Βαταμίδης Παντελής,Thessaloniki,2022-04-10,3:03:01,no,πηγή: myrace.gr / racetool
+34,Βαταμίδης Παντελής,Athens,2022-11-13,3:56:38,yes,πηγή: myrace.gr / racetool
+34,Βαταμίδης Παντελής,Hamburg,2023-04-23,3:15:07,no,πηγή: myrace.gr / racetool
+34,Βαταμίδης Παντελής,Athens,2024-11-10,3:55:54,yes,πηγή: myrace.gr / racetool
+40,Νταραγιάννης Παναγιώτης,Thessaloniki,2021-11-21,3:15:21,no,πηγή: myrace.gr / racetool
+40,Νταραγιάννης Παναγιώτης,Athens,2022-11-13,3:30:19,yes,πηγή: myrace.gr / racetool
+40,Νταραγιάννης Παναγιώτης,Milan,2023-04-02,3:35:03,no,πηγή: myrace.gr / racetool
+44,Θεοδωρόπουλος Γιώργος,Athens,2023-11-12,3:37:05,yes,πηγή: myrace.gr / racetool
+44,Θεοδωρόπουλος Γιώργος,Athens,2024-11-10,3:59:49,yes,πηγή: myrace.gr / racetool
+47,Κυρίος Σαράντος,Seville,2024-02-25,3:27:44,no,πηγή: myrace.gr / racetool
+49,Βουδούρης Δημήτρης,Berlin,2024-09-29,3:14:38,no,πηγή: myrace.gr / racetool
+50,Λαμπρούλης Νίκος,Athens,2025-11-09,3:16:46,yes,πηγή: myrace.gr / racetool
+51,Ντάγκας Σταύρος,Vienna,2024-04-21,4:01:43,no,πηγή: myrace.gr / racetool
+55,Θερμός Νίκος,Athens,2022-11-13,3:50:46,yes,πηγή: myrace.gr / racetool
+58,Σπανόπουλος Παναγιώτης,Berlin,2023-09-24,3:36:47,no,πηγή: myrace.gr / racetool
+58,Σπανόπουλος Παναγιώτης,Athens,2023-11-12,3:58:25,yes,πηγή: myrace.gr / racetool
+58,Σπανόπουλος Παναγιώτης,Hamburg,2024-04-28,3:14:23,no,πηγή: myrace.gr / racetool
+60,Καπετάνιος Φώτης,Athens,2025-11-09,3:53:32,yes,πηγή: myrace.gr / racetool
+63,Πελεκάνου Μαρίνα,Vienna,2023-04-23,4:19:48,no,πηγή: myrace.gr / racetool
+71,Κατσαλή Δανάη,Athens,2023-11-12,3:58:13,yes,πηγή: myrace.gr / racetool
+71,Κατσαλή Δανάη,Athens,2024-11-10,3:40:57,yes,πηγή: myrace.gr / racetool
+72,Παπαδογιάννης Σωτήρης,Thessaloniki,2024-04-21,3:56:41,no,πηγή: myrace.gr / racetool
+77,Φουσέκη Μαρία,Hamburg,2023-04-23,3:44:43,no,πηγή: myrace.gr / racetool
+77,Φουσέκη Μαρία,Seville,2024-02-25,3:41:16,no,πηγή: myrace.gr / racetool
+77,Φουσέκη Μαρία,Athens,2024-11-10,3:52:59,yes,πηγή: myrace.gr / racetool
+77,Φουσέκη Μαρία,Vienna,2025-04-06,3:45:20,no,πηγή: myrace.gr / racetool
+78,Κρανιώτης Χριστόφορος,Thessaloniki,2024-04-21,3:39:43,no,πηγή: myrace.gr / racetool
+79,Ζέκιος Θωμάς,Hamburg,2023-04-23,4:12:11,no,πηγή: myrace.gr / racetool
+79,Ζέκιος Θωμάς,Thessaloniki,2025-04-06,3:46:15,no,πηγή: myrace.gr / racetool
+84,Σαντοριναίου Σταυρούλα,Hamburg,2024-04-28,3:59:06,no,πηγή: myrace.gr / racetool
+84,Σαντοριναίου Σταυρούλα,Athens,2024-11-10,3:52:36,yes,πηγή: myrace.gr / racetool
+86,Πανουσάκης Χρήστος,Copenhagen,2025-05-11,3:56:50,no,πηγή: myrace.gr / racetool
